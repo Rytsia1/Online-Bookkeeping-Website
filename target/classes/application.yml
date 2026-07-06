@@ -1,0 +1,11 @@
+spring:
+  application:
+    name: Online-Bookkeeping-Website-Project
+  datasource:
+    url: jdbc:mysql://localhost:3306/db_bookkeeping?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Jakarta
+    username: root
+    password: Shizukusan1412
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+server:
+  port: 8080
