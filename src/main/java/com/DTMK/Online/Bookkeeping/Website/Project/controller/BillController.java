@@ -1,5 +1,6 @@
 package com.DTMK.Online.Bookkeeping.Website.Project.controller;
 
+import com.DTMK.Online.Bookkeeping.Website.Project.dto.MonthlyStatsDTO;
 import com.DTMK.Online.Bookkeeping.Website.Project.entity.Bill;
 import com.DTMK.Online.Bookkeeping.Website.Project.service.BillService;
 import lombok.RequiredArgsConstructor;
@@ -31,4 +32,14 @@ public class BillController {
     public String deleteBill(@RequestParam Integer id) {
         return billService.deleteBill(id);
     }
-}
+
+    // Menampilkan statistik bulanan
+    @GetMapping("/stats/monthly")
+    public MonthlyStatsDTO getMonthlyStats(
+            @RequestParam Integer userId,
+            @RequestParam int month,
+            @RequestParam int year) {
+        return billService.getMonthlyStats(userId, month, year);
+    }
+
+} // <--- Pastikan kurung penutup class berada di paling bawah
