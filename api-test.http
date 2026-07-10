@@ -1,0 +1,5 @@
+### Tes Register (Klik tombol panah hijau di sebelah kiri baris ini)
+POST http://localhost:8080/api/user/register?username=dios&password=123
+
+### Tes Login (Klik tombol panah hijau di sebelah kiri baris ini)
+POST http://localhost:8080/api/user/login?username=dios&password=123
