@@ -3,14 +3,14 @@
     <!-- Page Header -->
     <div class="page-header">
       <div class="header-left">
-        <h1 class="page-title">Manajemen Tagihan</h1>
-        <p class="page-subtitle">Kelola semua transaksi pemasukan dan pengeluaran Anda</p>
+        <h1 class="page-title">Bills Management</h1>
+        <p class="page-subtitle">Manage all your income and expense transactions</p>
       </div>
       <el-button type="primary" class="btn-primary-custom" @click="handleCreate">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-right: 6px">
           <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
         </svg>
-        Tambah Tagihan
+        Add Bill
       </el-button>
     </div>
 
@@ -38,28 +38,28 @@
           :cell-style="tableCellStyle"
           :default-sort="{ prop: 'date', order: 'descending' }"
         >
-          <el-table-column prop="date" label="Tanggal" width="120" sortable />
-          <el-table-column prop="type" label="Tipe" width="130">
+          <el-table-column prop="date" label="Date" width="120" sortable />
+          <el-table-column prop="type" label="Type" width="130">
             <template #default="{ row }">
               <span :class="['type-badge', row.type === 'income' ? 'badge-income' : 'badge-expense']">
-                {{ row.type === 'income' ? 'Pemasukan' : 'Pengeluaran' }}
+                {{ row.type === 'income' ? 'Income' : 'Expense' }}
               </span>
             </template>
           </el-table-column>
-          <el-table-column prop="category" label="Kategori" width="140">
+          <el-table-column prop="category" label="Category" width="140">
             <template #default="{ row }">
               <span class="category-text">{{ row.category }}</span>
             </template>
           </el-table-column>
-          <el-table-column prop="amount" label="Jumlah" width="160">
+          <el-table-column prop="amount" label="Amount" width="160">
             <template #default="{ row }">
               <span :class="['amount-text', row.type === 'income' ? 'income-text' : 'expense-text']">
                 {{ row.type === 'income' ? '+' : '-' }}{{ formatCurrency(row.amount) }}
               </span>
             </template>
           </el-table-column>
-          <el-table-column prop="description" label="Deskripsi" min-width="200" show-overflow-tooltip />
-          <el-table-column label="Aksi" width="160" fixed="right">
+          <el-table-column prop="description" label="Description" min-width="200" show-overflow-tooltip />
+          <el-table-column label="Actions" width="160" fixed="right">
             <template #default="{ row }">
               <div class="action-cell">
                 <button class="action-icon-btn edit-btn" @click="handleEdit(row)" title="Edit">
@@ -68,7 +68,7 @@
                     <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" />
                   </svg>
                 </button>
-                <button class="action-icon-btn delete-btn" @click="handleDelete(row.id)" title="Hapus">
+                <button class="action-icon-btn delete-btn" @click="handleDelete(row.id)" title="Delete">
                   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <polyline points="3 6 5 6 21 6" />
                     <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2" />
@@ -80,55 +80,55 @@
         </el-table>
       </div>
 
-      <el-empty v-if="filteredBills.length === 0" description="Tidak ada tagihan ditemukan" class="empty-state" />
+      <el-empty v-if="filteredBills.length === 0" description="No bills found" class="empty-state" />
     </div>
 
     <!-- Create/Edit Dialog -->
     <el-dialog
       v-model="dialogVisible"
-      :title="dialogMode === 'create' ? 'Tambah Tagihan Baru' : 'Edit Tagihan'"
+      :title="dialogMode === 'create' ? 'Add New Bill' : 'Edit Bill'"
       width="500px"
       class="dark-dialog"
       @close="resetForm"
     >
       <el-form ref="formRef" :model="formData" :rules="rules" label-position="top" class="dark-form">
-        <el-form-item label="Tipe Transaksi" prop="type">
-          <el-select v-model="formData.type" placeholder="Pilih tipe" size="large" style="width: 100%">
-            <el-option label="Pemasukan" value="income" />
-            <el-option label="Pengeluaran" value="expense" />
+        <el-form-item label="Transaction Type" prop="type">
+          <el-select v-model="formData.type" placeholder="Select type" size="large" style="width: 100%">
+            <el-option label="Income" value="income" />
+            <el-option label="Expense" value="expense" />
           </el-select>
         </el-form-item>
 
-        <el-form-item label="Kategori" prop="category">
-          <el-input v-model="formData.category" placeholder="Contoh: Makanan, Transport, Gaji" size="large" />
+        <el-form-item label="Category" prop="category">
+          <el-input v-model="formData.category" placeholder="e.g. Food, Transport, Salary" size="large" />
         </el-form-item>
 
-        <el-form-item label="Jumlah (IDR)" prop="amount">
+        <el-form-item label="Amount (USD)" prop="amount">
           <el-input-number
             v-model="formData.amount"
             :min="0"
-            :step="10000"
-            placeholder="Masukkan jumlah"
+            :step="10"
+            placeholder="Enter amount"
             style="width: 100%"
             size="large"
           />
         </el-form-item>
 
-        <el-form-item label="Tanggal" prop="date">
+        <el-form-item label="Date" prop="date">
           <el-date-picker
             v-model="formData.date"
             type="date"
-            placeholder="Pilih tanggal"
+            placeholder="Select date"
             style="width: 100%"
             size="large"
           />
         </el-form-item>
 
-        <el-form-item label="Deskripsi" prop="description">
+        <el-form-item label="Description" prop="description">
           <el-input
             v-model="formData.description"
             type="textarea"
-            placeholder="Tambahkan catatan untuk tagihan ini"
+            placeholder="Add a note for this bill"
             rows="3"
             size="large"
           />
@@ -137,8 +137,8 @@
 
       <template #footer>
         <div class="dialog-footer">
-          <el-button class="btn-outline-custom" @click="dialogVisible = false">Batal</el-button>
-          <el-button type="primary" class="btn-primary-custom" @click="handleSubmit">Simpan</el-button>
+          <el-button class="btn-outline-custom" @click="dialogVisible = false">Cancel</el-button>
+          <el-button type="primary" class="btn-primary-custom" @click="handleSubmit">Save</el-button>
         </div>
       </template>
     </el-dialog>
@@ -159,9 +159,9 @@ const formRef = ref(null)
 const loading = ref(false)
 
 const filters = [
-  { label: 'Semua', value: 'all' },
-  { label: 'Pemasukan', value: 'income' },
-  { label: 'Pengeluaran', value: 'expense' },
+  { label: 'All', value: 'all' },
+  { label: 'Income', value: 'income' },
+  { label: 'Expense', value: 'expense' },
 ]
 
 const formData = ref({
@@ -173,10 +173,10 @@ const formData = ref({
 })
 
 const rules = {
-  type: [{ required: true, message: 'Tipe wajib dipilih', trigger: 'change' }],
-  category: [{ required: true, message: 'Kategori wajib diisi', trigger: 'blur' }],
-  amount: [{ required: true, message: 'Jumlah wajib diisi', trigger: 'blur' }],
-  date: [{ required: true, message: 'Tanggal wajib dipilih', trigger: 'change' }],
+  type: [{ required: true, message: 'Type is required', trigger: 'change' }],
+  category: [{ required: true, message: 'Category is required', trigger: 'blur' }],
+  amount: [{ required: true, message: 'Amount is required', trigger: 'blur' }],
+  date: [{ required: true, message: 'Date is required', trigger: 'change' }],
 }
 
 // Table styles
@@ -209,9 +209,9 @@ const getFilterCount = (filterValue) => {
 
 // Methods
 const formatCurrency = (amount) => {
-  return new Intl.NumberFormat('id-ID', {
+  return new Intl.NumberFormat('en-US', {
     style: 'currency',
-    currency: 'IDR',
+    currency: 'USD',
     minimumFractionDigits: 0,
   }).format(amount)
 }
@@ -222,7 +222,7 @@ const fetchBills = async () => {
     const data = await request.get('/bills')
     bills.value = data.sort((a, b) => new Date(b.date) - new Date(a.date))
   } catch (error) {
-    ElMessage.error('Gagal memuat data tagihan')
+    ElMessage.error('Failed to load bills')
     console.error(error)
   } finally {
     loading.value = false
@@ -242,18 +242,18 @@ const handleEdit = (row) => {
 }
 
 const handleDelete = (id) => {
-  ElMessageBox.confirm('Apakah Anda yakin ingin menghapus tagihan ini?', 'Konfirmasi Hapus', {
-    confirmButtonText: 'Hapus',
-    cancelButtonText: 'Batal',
+  ElMessageBox.confirm('Are you sure you want to delete this bill?', 'Confirm Delete', {
+    confirmButtonText: 'Delete',
+    cancelButtonText: 'Cancel',
     type: 'warning',
   })
     .then(async () => {
       try {
         await request.delete(`/bills/${id}`)
-        ElMessage.success('Tagihan berhasil dihapus')
+        ElMessage.success('Bill deleted successfully')
         fetchBills()
       } catch (error) {
-        ElMessage.error('Gagal menghapus tagihan')
+        ElMessage.error('Failed to delete bill')
         console.error(error)
       }
     })
@@ -269,16 +269,16 @@ const handleSubmit = async () => {
 
     if (dialogMode.value === 'create') {
       await request.post('/bills', formData.value)
-      ElMessage.success('Tagihan berhasil ditambahkan')
+      ElMessage.success('Bill added successfully')
     } else {
       await request.put(`/bills/${formData.value.id}`, formData.value)
-      ElMessage.success('Tagihan berhasil diperbarui')
+      ElMessage.success('Bill updated successfully')
     }
 
     dialogVisible.value = false
     fetchBills()
   } catch (error) {
-    ElMessage.error('Gagal menyimpan tagihan')
+    ElMessage.error('Failed to save bill')
     console.error(error)
   } finally {
     loading.value = false

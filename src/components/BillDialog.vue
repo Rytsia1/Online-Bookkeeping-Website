@@ -1,7 +1,7 @@
 <template>
   <el-dialog
     v-model="dialogVisible"
-    :title="isEditMode ? 'Edit Tagihan' : 'Tambah Tagihan Baru'"
+    :title="isEditMode ? 'Edit Bill' : 'Add New Bill'"
     width="500px"
     @close="handleDialogClose"
   >
@@ -12,15 +12,15 @@
       label-width="100px"
       label-position="top"
     >
-      <el-form-item label="Tipe" prop="type">
-        <el-select v-model="formData.type" placeholder="Pilih tipe">
-          <el-option label="Pemasukan" value="income" />
-          <el-option label="Pengeluaran" value="expense" />
+      <el-form-item label="Type" prop="type">
+        <el-select v-model="formData.type" placeholder="Select type">
+          <el-option label="Income" value="income" />
+          <el-option label="Expense" value="expense" />
         </el-select>
       </el-form-item>
 
-      <el-form-item label="Kategori" prop="category">
-        <el-select v-model="formData.category" placeholder="Pilih kategori">
+      <el-form-item label="Category" prop="category">
+        <el-select v-model="formData.category" placeholder="Select category">
           <el-option
             v-for="cat in categoryOptions"
             :key="cat"
@@ -30,7 +30,7 @@
         </el-select>
       </el-form-item>
 
-      <el-form-item label="Jumlah (Rp)" prop="amount">
+      <el-form-item label="Amount (USD)" prop="amount">
         <el-input
           v-model.number="formData.amount"
           type="number"
@@ -39,20 +39,20 @@
         />
       </el-form-item>
 
-      <el-form-item label="Tanggal" prop="date">
+      <el-form-item label="Date" prop="date">
         <el-date-picker
           v-model="formData.date"
           type="date"
-          placeholder="Pilih tanggal"
+          placeholder="Select date"
           value-format="YYYY-MM-DD"
         />
       </el-form-item>
 
-      <el-form-item label="Deskripsi" prop="description">
+      <el-form-item label="Description" prop="description">
         <el-input
           v-model="formData.description"
           type="textarea"
-          placeholder="Masukkan deskripsi (opsional)"
+          placeholder="Enter description (optional)"
           rows="3"
         />
       </el-form-item>
@@ -60,9 +60,9 @@
 
     <template #footer>
       <span class="dialog-footer">
-        <el-button @click="handleDialogClose">Batal</el-button>
+        <el-button @click="handleDialogClose">Cancel</el-button>
         <el-button type="primary" :loading="loading" @click="handleSubmit">
-          {{ isEditMode ? 'Simpan Perubahan' : 'Tambah Tagihan' }}
+          {{ isEditMode ? 'Save Changes' : 'Add Bill' }}
         </el-button>
       </span>
     </template>
@@ -99,9 +99,9 @@ const isEditMode = computed(() => !!props.editData)
 
 const categoryOptions = computed(() => {
   if (formData.type === 'income') {
-    return ['Gaji', 'Bonus', 'Freelance', 'Investasi', 'Lainnya']
+    return ['Salary', 'Bonus', 'Freelance', 'Investment', 'Other']
   }
-  return ['Makanan', 'Transport', 'Utilitas', 'Belanja', 'Hiburan', 'Lainnya']
+  return ['Food', 'Transport', 'Utilities', 'Shopping', 'Entertainment', 'Other']
 })
 
 const formData = ref({
@@ -114,26 +114,26 @@ const formData = ref({
 
 const formRules = {
   type: [
-    { required: true, message: 'Tipe harus dipilih', trigger: 'change' }
+    { required: true, message: 'Type is required', trigger: 'change' }
   ],
   category: [
-    { required: true, message: 'Kategori harus dipilih', trigger: 'change' }
+    { required: true, message: 'Category is required', trigger: 'change' }
   ],
   amount: [
-    { required: true, message: 'Jumlah harus diisi', trigger: 'blur' },
+    { required: true, message: 'Amount is required', trigger: 'blur' },
     {
       type: 'number',
       min: 1,
-      message: 'Jumlah harus lebih dari 0',
+      message: 'Amount must be greater than 0',
       trigger: 'blur'
     }
   ],
   date: [
-    { required: true, message: 'Tanggal harus dipilih', trigger: 'change' }
+    { required: true, message: 'Date is required', trigger: 'change' }
   ]
 }
 
-// Watch untuk reset form ketika mode berubah
+// Watch to reset form when mode changes
 watch(
   () => props.editData,
   (newVal) => {
@@ -162,11 +162,11 @@ const handleSubmit = async () => {
     if (isEditMode.value) {
       // Update existing bill
       await request.put(`/bills/${formData.value.id}`, payload)
-      ElMessage.success('Tagihan berhasil diupdate')
+      ElMessage.success('Bill updated successfully')
     } else {
       // Create new bill
       await request.post('/bills', payload)
-      ElMessage.success('Tagihan berhasil ditambahkan')
+      ElMessage.success('Bill added successfully')
     }
 
     emit('success')
@@ -175,7 +175,7 @@ const handleSubmit = async () => {
     if (error.response?.data?.message) {
       ElMessage.error(error.response.data.message)
     } else {
-      ElMessage.error('Gagal menyimpan tagihan')
+      ElMessage.error('Failed to save bill')
     }
   } finally {
     loading.value = false

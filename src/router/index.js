@@ -93,7 +93,7 @@ router.beforeEach((to, from, next) => {
   // Check if route requires authentication
   if (to.meta.requiresAuth && !isAuthenticated) {
     // User is not authenticated and trying to access protected route
-    ElMessage.warning('Silakan login terlebih dahulu untuk mengakses halaman tersebut')
+    ElMessage.warning('Please log in first to access this page')
     next('/login')
     return
   }

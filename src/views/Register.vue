@@ -15,12 +15,12 @@
           </svg>
         </div>
         <h1 class="brand-name">BookKeeping</h1>
-        <p class="brand-tagline">Buat akun baru untuk memulai</p>
+        <p class="brand-tagline">Create a new account to get started</p>
       </div>
 
       <el-card class="register-card">
-        <h2 class="form-title">Daftar Akun</h2>
-        <p class="form-subtitle">Isi data di bawah untuk membuat akun</p>
+        <h2 class="form-title">Create Account</h2>
+        <p class="form-subtitle">Fill in the details below to register</p>
 
         <el-form
           ref="registerFormRef"
@@ -32,7 +32,7 @@
           <el-form-item label="Username" prop="username">
             <el-input
               v-model="registerForm.username"
-              placeholder="Pilih username (3-20 karakter)"
+              placeholder="Choose a username (3-20 characters)"
               clearable
               size="large"
               @keyup.enter="handleRegister"
@@ -43,7 +43,7 @@
             <el-input
               v-model="registerForm.password"
               type="password"
-              placeholder="Min 6 karakter, huruf besar & angka"
+              placeholder="Min 6 chars, uppercase & number"
               show-password
               clearable
               size="large"
@@ -51,11 +51,11 @@
             />
           </el-form-item>
 
-          <el-form-item label="Konfirmasi Password" prop="confirmPassword">
+          <el-form-item label="Confirm Password" prop="confirmPassword">
             <el-input
               v-model="registerForm.confirmPassword"
               type="password"
-              placeholder="Masukkan ulang password"
+              placeholder="Re-enter your password"
               show-password
               clearable
               size="large"
@@ -81,14 +81,14 @@
               class="register-button"
               size="large"
             >
-              {{ isLoading ? 'Memproses...' : 'Daftar' }}
+              {{ isLoading ? 'Registering...' : 'Register' }}
             </el-button>
           </el-form-item>
         </el-form>
 
         <div class="login-link">
-          <span>Sudah punya akun?</span>
-          <router-link to="/login" class="link-text">Masuk di sini</router-link>
+          <span>Already have an account?</span>
+          <router-link to="/login" class="link-text">Sign in here</router-link>
         </div>
       </el-card>
     </div>
@@ -131,10 +131,10 @@ const passwordStrength = computed(() => calculatePasswordStrength())
 const strengthLabel = computed(() => {
   const strength = passwordStrength.value
   if (strength === 0) return ''
-  if (strength < 30) return 'Lemah'
-  if (strength < 60) return 'Cukup'
-  if (strength < 80) return 'Baik'
-  return 'Kuat'
+  if (strength < 30) return 'Weak'
+  if (strength < 60) return 'Fair'
+  if (strength < 80) return 'Good'
+  return 'Strong'
 })
 
 const strengthColor = computed(() => {
@@ -148,9 +148,9 @@ const strengthColor = computed(() => {
 
 const validatePasswordMatch = (rule, value, callback) => {
   if (value === '') {
-    callback(new Error('Konfirmasi password wajib diisi'))
+    callback(new Error('Please confirm your password'))
   } else if (value !== registerForm.password) {
-    callback(new Error('Password tidak cocok'))
+    callback(new Error('Passwords do not match'))
   } else {
     callback()
   }
@@ -158,13 +158,13 @@ const validatePasswordMatch = (rule, value, callback) => {
 
 const validatePasswordStrength = (rule, value, callback) => {
   if (!value) {
-    callback(new Error('Password wajib diisi'))
+    callback(new Error('Password is required'))
   } else if (value.length < 6) {
-    callback(new Error('Password minimal 6 karakter'))
+    callback(new Error('Password must be at least 6 characters'))
   } else if (!/[A-Z]/.test(value)) {
-    callback(new Error('Password harus mengandung huruf besar'))
+    callback(new Error('Password must contain at least one uppercase letter'))
   } else if (!/[0-9]/.test(value)) {
-    callback(new Error('Password harus mengandung angka'))
+    callback(new Error('Password must contain at least one number'))
   } else {
     callback()
   }
@@ -172,16 +172,16 @@ const validatePasswordStrength = (rule, value, callback) => {
 
 const registerRules = {
   username: [
-    { required: true, message: 'Username wajib diisi', trigger: 'blur' },
-    { min: 3, max: 20, message: 'Username harus 3-20 karakter', trigger: 'blur' },
-    { pattern: /^[a-zA-Z0-9_]+$/, message: 'Username hanya boleh huruf, angka, dan underscore', trigger: 'blur' }
+    { required: true, message: 'Username is required', trigger: 'blur' },
+    { min: 3, max: 20, message: 'Username must be 3-20 characters', trigger: 'blur' },
+    { pattern: /^[a-zA-Z0-9_]+$/, message: 'Username can only contain letters, numbers, and underscores', trigger: 'blur' }
   ],
   password: [
-    { required: true, message: 'Password wajib diisi', trigger: 'blur' },
+    { required: true, message: 'Password is required', trigger: 'blur' },
     { validator: validatePasswordStrength, trigger: 'blur' }
   ],
   confirmPassword: [
-    { required: true, message: 'Konfirmasi password wajib diisi', trigger: 'blur' },
+    { required: true, message: 'Please confirm your password', trigger: 'blur' },
     { validator: validatePasswordMatch, trigger: 'blur' }
   ]
 }
@@ -190,7 +190,7 @@ const handleRegister = async () => {
   try {
     await registerFormRef.value.validate()
   } catch (error) {
-    ElMessage.error('Perbaiki error pada form')
+    ElMessage.error('Please fix the form errors')
     return
   }
 
@@ -202,7 +202,7 @@ const handleRegister = async () => {
       password: registerForm.password
     })
 
-    ElMessage.success('Registrasi berhasil! Mengalihkan ke login...')
+    ElMessage.success('Registration successful! Redirecting to login...')
 
     registerForm.username = ''
     registerForm.password = ''
@@ -215,7 +215,7 @@ const handleRegister = async () => {
     const errorMessage =
       error.response?.data?.message ||
       error.response?.statusText ||
-      'Registrasi gagal. Silakan coba lagi.'
+      'Registration failed. Please try again.'
 
     ElMessage.error(errorMessage)
   } finally {

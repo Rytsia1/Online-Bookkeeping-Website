@@ -4,16 +4,16 @@
     <header class="dashboard-header">
       <div class="header-left">
         <h1 class="welcome-title">
-          Selamat Datang, <span class="username">{{ userName }}</span>
+          Welcome, <span class="username">{{ userName }}</span>
         </h1>
         <p class="welcome-subtitle">{{ currentDate }}</p>
       </div>
       <div class="header-actions">
         <el-button type="primary" class="btn-primary-custom" @click="navigateToBills">
-          Lihat Tagihan
+          View Bills
         </el-button>
         <el-button class="btn-outline-custom" @click="navigateToAnalytics">
-          Analitik
+          Analytics
         </el-button>
         <el-dropdown @command="handleCommand" trigger="click">
           <el-button class="btn-icon-custom" circle>
@@ -21,8 +21,8 @@
           </el-button>
           <template #dropdown>
             <el-dropdown-menu>
-              <el-dropdown-item command="profile">Profil</el-dropdown-item>
-              <el-dropdown-item command="settings">Pengaturan</el-dropdown-item>
+              <el-dropdown-item command="profile">Profile</el-dropdown-item>
+              <el-dropdown-item command="settings">Settings</el-dropdown-item>
               <el-dropdown-item divided command="logout">Logout</el-dropdown-item>
             </el-dropdown-menu>
           </template>
@@ -39,7 +39,7 @@
           </svg>
         </div>
         <div class="stat-info">
-          <span class="stat-label">Total Transaksi</span>
+          <span class="stat-label">Total Transactions</span>
           <span class="stat-number">{{ totalTransactions }}</span>
         </div>
       </div>
@@ -51,7 +51,7 @@
           </svg>
         </div>
         <div class="stat-info">
-          <span class="stat-label">Bulan Ini</span>
+          <span class="stat-label">This Month</span>
           <span class="stat-number">{{ currentMonthCount }}</span>
         </div>
       </div>
@@ -75,7 +75,7 @@
           </svg>
         </div>
         <div class="stat-info">
-          <span class="stat-label">Terakhir Update</span>
+          <span class="stat-label">Last Updated</span>
           <span class="stat-number">{{ lastUpdate }}</span>
         </div>
       </div>
@@ -86,8 +86,8 @@
       <!-- Recent Bills -->
       <section class="content-card recent-bills-card">
         <div class="card-header">
-          <h3 class="card-title">Tagihan Terbaru</h3>
-          <el-button link class="view-all-link" @click="navigateToBills">Lihat Semua →</el-button>
+          <h3 class="card-title">Recent Bills</h3>
+          <el-button link class="view-all-link" @click="navigateToBills">View All →</el-button>
         </div>
 
         <div class="table-wrapper">
@@ -99,27 +99,27 @@
             :cell-style="tableCellStyle"
             :default-sort="{ prop: 'date', order: 'descending' }"
           >
-            <el-table-column prop="date" label="Tanggal" width="110" sortable />
-            <el-table-column prop="type" label="Tipe" width="120">
+            <el-table-column prop="date" label="Date" width="110" sortable />
+            <el-table-column prop="type" label="Type" width="120">
               <template #default="{ row }">
                 <span :class="['type-badge', row.type === 'income' ? 'badge-income' : 'badge-expense']">
-                  {{ row.type === 'income' ? 'Pemasukan' : 'Pengeluaran' }}
+                  {{ row.type === 'income' ? 'Income' : 'Expense' }}
                 </span>
               </template>
             </el-table-column>
-            <el-table-column prop="category" label="Kategori" width="120" />
-            <el-table-column prop="amount" label="Jumlah" width="140">
+            <el-table-column prop="category" label="Category" width="120" />
+            <el-table-column prop="amount" label="Amount" width="140">
               <template #default="{ row }">
                 <span :class="row.type === 'income' ? 'income-text' : 'expense-text'">
                   {{ row.type === 'income' ? '+' : '-' }}{{ formatCurrency(row.amount) }}
                 </span>
               </template>
             </el-table-column>
-            <el-table-column prop="description" label="Deskripsi" min-width="180" show-overflow-tooltip />
+            <el-table-column prop="description" label="Description" min-width="180" show-overflow-tooltip />
           </el-table>
         </div>
 
-        <el-empty v-if="recentBills.length === 0" description="Belum ada tagihan" class="empty-state" />
+        <el-empty v-if="recentBills.length === 0" description="No bills yet" class="empty-state" />
       </section>
 
       <!-- Right Sidebar -->
@@ -127,14 +127,14 @@
         <!-- Monthly Summary -->
         <section class="content-card summary-card">
           <div class="card-header">
-            <h3 class="card-title">Ringkasan Bulan Ini</h3>
+            <h3 class="card-title">Monthly Summary</h3>
           </div>
 
           <div class="summary-list">
             <div class="summary-row income-row">
               <div class="summary-dot dot-income"></div>
               <div class="summary-detail">
-                <span class="summary-label">Total Pemasukan</span>
+                <span class="summary-label">Total Income</span>
                 <span class="summary-value income-text">{{ formatCurrency(monthlySummary.income) }}</span>
               </div>
             </div>
@@ -142,7 +142,7 @@
             <div class="summary-row expense-row">
               <div class="summary-dot dot-expense"></div>
               <div class="summary-detail">
-                <span class="summary-label">Total Pengeluaran</span>
+                <span class="summary-label">Total Expenses</span>
                 <span class="summary-value expense-text">{{ formatCurrency(monthlySummary.expense) }}</span>
               </div>
             </div>
@@ -152,7 +152,7 @@
             <div class="summary-row balance-row">
               <div class="summary-dot dot-balance"></div>
               <div class="summary-detail">
-                <span class="summary-label">Saldo Bersih</span>
+                <span class="summary-label">Net Balance</span>
                 <span class="summary-value" :class="monthlySummary.balance >= 0 ? 'income-text' : 'expense-text'">
                   {{ formatCurrency(monthlySummary.balance) }}
                 </span>
@@ -161,14 +161,14 @@
           </div>
 
           <el-button type="primary" class="btn-primary-custom full-width" @click="navigateToAnalytics">
-            Lihat Analitik Lengkap
+            View Full Analytics
           </el-button>
         </section>
 
         <!-- Quick Actions -->
         <section class="content-card actions-card">
           <div class="card-header">
-            <h3 class="card-title">Aksi Cepat</h3>
+            <h3 class="card-title">Quick Actions</h3>
           </div>
 
           <div class="action-buttons">
@@ -176,7 +176,7 @@
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
               </svg>
-              Tambah Tagihan
+              Add Bill
             </button>
             <button class="action-btn">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -188,7 +188,7 @@
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <circle cx="12" cy="12" r="3" /><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z" />
               </svg>
-              Pengaturan
+              Settings
             </button>
           </div>
         </section>
@@ -237,7 +237,7 @@ const userName = computed(() => {
 const currentDate = computed(() => {
   const today = new Date()
   const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }
-  return today.toLocaleDateString('id-ID', options)
+  return today.toLocaleDateString('en-US', options)
 })
 
 const recentBills = computed(() => {
@@ -261,8 +261,8 @@ const currentMonthCount = computed(() => {
 
 const statusText = computed(() => {
   if (monthlySummary.value.balance > 0) return 'Surplus'
-  if (monthlySummary.value.balance < 0) return 'Defisit'
-  return 'Seimbang'
+  if (monthlySummary.value.balance < 0) return 'Deficit'
+  return 'Balanced'
 })
 
 const statusClass = computed(() => {
@@ -273,14 +273,14 @@ const statusClass = computed(() => {
 
 const lastUpdate = computed(() => {
   const now = new Date()
-  return now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })
+  return now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
 })
 
 // Methods
 const formatCurrency = (amount) => {
-  return new Intl.NumberFormat('id-ID', {
+  return new Intl.NumberFormat('en-US', {
     style: 'currency',
-    currency: 'IDR',
+    currency: 'USD',
     minimumFractionDigits: 0,
   }).format(amount)
 }
@@ -291,7 +291,7 @@ const fetchBills = async () => {
     const data = await request.get('/bills')
     bills.value = Array.isArray(data) ? data.sort((a, b) => new Date(b.date) - new Date(a.date)) : []
   } catch (error) {
-    ElMessage.error('Gagal memuat data tagihan')
+    ElMessage.error('Failed to load bills data')
     console.error(error)
   } finally {
     loading.value = false
@@ -325,13 +325,13 @@ const handleCommand = (command) => {
       localStorage.removeItem('token')
       localStorage.removeItem('username')
       router.push('/login')
-      ElMessage.success('Logout berhasil')
+      ElMessage.success('Logged out successfully')
       break
     case 'profile':
-      ElMessage.info('Fitur profil segera hadir')
+      ElMessage.info('Profile feature coming soon')
       break
     case 'settings':
-      ElMessage.info('Fitur pengaturan segera hadir')
+      ElMessage.info('Settings feature coming soon')
       break
   }
 }

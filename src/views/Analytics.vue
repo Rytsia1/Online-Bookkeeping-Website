@@ -3,15 +3,15 @@
     <!-- Page Header -->
     <div class="page-header">
       <div class="header-left">
-        <h1 class="page-title">Analitik Keuangan</h1>
-        <p class="page-subtitle">Ringkasan dan visualisasi data keuangan Anda</p>
+        <h1 class="page-title">Financial Analytics</h1>
+        <p class="page-subtitle">Summary and visualization of your financial data</p>
       </div>
       <button class="refresh-btn" @click="refreshAnalytics">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
           <polyline points="23 4 23 10 17 10" />
           <path d="M20.49 15a9 9 0 11-2.12-9.36L23 10" />
         </svg>
-        Refresh Data
+        Refresh
       </button>
     </div>
 
@@ -26,11 +26,11 @@
             </svg>
           </div>
           <div class="stat-info">
-            <span class="stat-label">Total Pemasukan</span>
+            <span class="stat-label">Total Income</span>
             <span class="stat-value income-value">{{ formatCurrency(stats.income) }}</span>
             <span class="stat-trend">
               <span class="trend-badge income-badge">{{ incomePercentage }}%</span>
-              dari total transaksi
+              of total transactions
             </span>
           </div>
         </div>
@@ -43,11 +43,11 @@
             </svg>
           </div>
           <div class="stat-info">
-            <span class="stat-label">Total Pengeluaran</span>
+            <span class="stat-label">Total Expenses</span>
             <span class="stat-value expense-value">{{ formatCurrency(stats.expense) }}</span>
             <span class="stat-trend">
               <span class="trend-badge expense-badge">{{ expensePercentage }}%</span>
-              dari total transaksi
+              of total transactions
             </span>
           </div>
         </div>
@@ -60,15 +60,15 @@
             </svg>
           </div>
           <div class="stat-info">
-            <span class="stat-label">Saldo Tersisa</span>
+            <span class="stat-label">Remaining Balance</span>
             <span class="stat-value" :class="stats.balance >= 0 ? 'balance-positive' : 'balance-negative'">
               {{ formatCurrency(stats.balance) }}
             </span>
             <span class="stat-trend">
               <span :class="['trend-badge', stats.balance >= 0 ? 'surplus-badge' : 'deficit-badge']">
-                {{ stats.balance >= 0 ? 'Surplus' : 'Defisit' }}
+                {{ stats.balance >= 0 ? 'Surplus' : 'Deficit' }}
               </span>
-              status keuangan
+              financial status
             </span>
           </div>
         </div>
@@ -80,21 +80,21 @@
       <div class="charts-grid">
         <div class="chart-card">
           <div class="chart-header">
-            <h3 class="chart-title">Distribusi Pengeluaran</h3>
-            <span class="chart-subtitle">Berdasarkan kategori</span>
+            <h3 class="chart-title">Expense Distribution</h3>
+            <span class="chart-subtitle">By category</span>
           </div>
           <div class="chart-body">
-            <PieChart :data="categoryData" title="Pengeluaran per Kategori" />
+            <PieChart :data="categoryData" title="Expenses by Category" />
           </div>
         </div>
 
         <div class="chart-card">
           <div class="chart-header">
-            <h3 class="chart-title">Ringkasan Transaksi</h3>
-            <span class="chart-subtitle">Pemasukan vs Pengeluaran</span>
+            <h3 class="chart-title">Transaction Summary</h3>
+            <span class="chart-subtitle">Income vs Expenses</span>
           </div>
           <div class="chart-body">
-            <PieChart :data="typeData" title="Pemasukan vs Pengeluaran" />
+            <PieChart :data="typeData" title="Income vs Expenses" />
           </div>
         </div>
       </div>
@@ -106,8 +106,8 @@
         <path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
         <path d="M9 10h.01M15 10h.01M9.5 15.5a3.5 3.5 0 015 0" />
       </svg>
-      <h3 class="empty-title">Belum Ada Data</h3>
-      <p class="empty-text">Mulai tambahkan tagihan untuk melihat analitik keuangan Anda</p>
+      <h3 class="empty-title">No Data Yet</h3>
+      <p class="empty-text">Start adding bills to see your financial analytics</p>
     </div>
   </div>
 </template>
@@ -144,9 +144,9 @@ const expensePercentage = computed(() => {
 
 // Methods
 const formatCurrency = (amount) => {
-  return new Intl.NumberFormat('id-ID', {
+  return new Intl.NumberFormat('en-US', {
     style: 'currency',
-    currency: 'IDR',
+    currency: 'USD',
     minimumFractionDigits: 0,
   }).format(amount)
 }
@@ -161,7 +161,7 @@ const fetchSummary = async () => {
       balance: (data.balance || 0),
     }
   } catch (error) {
-    ElMessage.error('Gagal memuat ringkasan statistik')
+    ElMessage.error('Failed to load statistics summary')
     console.error(error)
   } finally {
     loading.value = false
@@ -178,7 +178,7 @@ const fetchCategoryData = async () => {
         }))
       : []
   } catch (error) {
-    ElMessage.error('Gagal memuat data kategori')
+    ElMessage.error('Failed to load category data')
     console.error(error)
     categoryData.value = []
   }
@@ -187,8 +187,8 @@ const fetchCategoryData = async () => {
 const fetchTypeData = async () => {
   try {
     const data = [
-      { name: 'Pemasukan', value: stats.value.income },
-      { name: 'Pengeluaran', value: stats.value.expense },
+      { name: 'Income', value: stats.value.income },
+      { name: 'Expenses', value: stats.value.expense },
     ]
     typeData.value = data.filter((item) => item.value > 0)
   } catch (error) {
@@ -202,9 +202,9 @@ const fetchAnalytics = async () => {
 }
 
 const refreshAnalytics = async () => {
-  ElMessage.info('Memperbarui data...')
+  ElMessage.info('Refreshing data...')
   await fetchAnalytics()
-  ElMessage.success('Data berhasil diperbarui')
+  ElMessage.success('Data refreshed successfully')
 }
 
 // Lifecycle

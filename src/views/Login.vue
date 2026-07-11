@@ -15,12 +15,12 @@
           </svg>
         </div>
         <h1 class="brand-name">BookKeeping</h1>
-        <p class="brand-tagline">Kelola keuangan dengan mudah</p>
+        <p class="brand-tagline">Manage your finances with ease</p>
       </div>
 
       <el-card class="login-card">
-        <h2 class="form-title">Masuk ke Akun</h2>
-        <p class="form-subtitle">Silakan masukkan kredensial Anda</p>
+        <h2 class="form-title">Sign In</h2>
+        <p class="form-subtitle">Enter your credentials to continue</p>
 
         <el-form
           ref="loginFormRef"
@@ -32,7 +32,7 @@
           <el-form-item label="Username" prop="username">
             <el-input
               v-model="loginForm.username"
-              placeholder="Masukkan username"
+              placeholder="Enter your username"
               clearable
               size="large"
               @keyup.enter="handleLogin"
@@ -43,7 +43,7 @@
             <el-input
               v-model="loginForm.password"
               type="password"
-              placeholder="Masukkan password"
+              placeholder="Enter your password"
               show-password
               clearable
               size="large"
@@ -59,14 +59,14 @@
               class="login-button"
               size="large"
             >
-              {{ isLoading ? 'Memproses...' : 'Masuk' }}
+              {{ isLoading ? 'Signing in...' : 'Sign In' }}
             </el-button>
           </el-form-item>
         </el-form>
 
         <div class="register-link">
-          <span>Belum punya akun?</span>
-          <router-link to="/register" class="link-text">Daftar sekarang</router-link>
+          <span>Don't have an account?</span>
+          <router-link to="/register" class="link-text">Register now</router-link>
         </div>
       </el-card>
     </div>
@@ -88,7 +88,7 @@ const loginForm = reactive({
   password: ''
 })
 
-// Validation rules untuk login form
+// Validation rules for login form
 const loginRules = {
   username: [
     {
@@ -122,7 +122,7 @@ const loginRules = {
  * Validate form before making API call
  */
 const handleLogin = async () => {
-  // Validasi form terlebih dahulu
+  // Validate form first
   try {
     await loginFormRef.value.validate()
   } catch (error) {
@@ -139,7 +139,7 @@ const handleLogin = async () => {
       password: loginForm.password
     })
 
-    // Simpan token ke localStorage
+    // Save token to localStorage
     // response interceptor already unwraps response.data
     const token = response.token || response.data?.token
     if (token) {
@@ -147,7 +147,7 @@ const handleLogin = async () => {
       localStorage.setItem('username', loginForm.username)
       ElMessage.success('Login successful!')
 
-      // Redirect ke dashboard setelah delay singkat
+      // Redirect to dashboard after a short delay
       setTimeout(() => {
         router.push('/dashboard')
       }, 500)
