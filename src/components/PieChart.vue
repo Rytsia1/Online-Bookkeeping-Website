@@ -4,7 +4,13 @@
 
 <script setup>
 import { ref, onMounted, onUnmounted, watch } from 'vue'
-import * as echarts from 'echarts'
+import * as echarts from 'echarts/core'
+import { PieChart as PieChartSeries } from 'echarts/charts'
+import { TitleComponent, TooltipComponent, LegendComponent } from 'echarts/components'
+import { CanvasRenderer } from 'echarts/renderers'
+
+// Register only the components we need
+echarts.use([PieChartSeries, TitleComponent, TooltipComponent, LegendComponent, CanvasRenderer])
 
 const props = defineProps({
   data: {
@@ -87,11 +93,15 @@ const initChart = () => {
   chartInstance.setOption(option)
 }
 
-// Handle window resize
+// Debounced resize handler to avoid excessive redraws
+let resizeTimer = null
 const handleResize = () => {
-  if (chartInstance) {
-    chartInstance.resize()
-  }
+  clearTimeout(resizeTimer)
+  resizeTimer = setTimeout(() => {
+    if (chartInstance) {
+      chartInstance.resize()
+    }
+  }, 200)
 }
 
 // Watch for data changes

@@ -163,6 +163,8 @@ const fetchSummary = async () => {
   } catch (error) {
     ElMessage.error('Gagal memuat ringkasan statistik')
     console.error(error)
+  } finally {
+    loading.value = false
   }
 }
 

@@ -140,8 +140,11 @@ const handleLogin = async () => {
     })
 
     // Simpan token ke localStorage
-    if (response.data.token) {
-      localStorage.setItem('token', response.data.token)
+    // response interceptor already unwraps response.data
+    const token = response.token || response.data?.token
+    if (token) {
+      localStorage.setItem('token', token)
+      localStorage.setItem('username', loginForm.username)
       ElMessage.success('Login successful!')
 
       // Redirect ke dashboard setelah delay singkat
