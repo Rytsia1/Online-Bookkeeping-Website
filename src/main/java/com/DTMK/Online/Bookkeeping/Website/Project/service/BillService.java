@@ -29,6 +29,10 @@ public class BillService {
         return "Sukses: Catatan keuangan berhasil dihapus!";
     }
 
+    public List<com.DTMK.Online.Bookkeeping.Website.Project.dto.CategoryStatDTO> getExpenseByCategory(Integer userId, int month, int year) {
+        return billMapper.getExpenseByCategory(userId, month, year);
+    }
+
     public MonthlyStatsDTO getMonthlyStats(Integer userId, int month, int year) {
         BigDecimal income = billMapper.calculateMonthlyIncome(userId, month, year);
         BigDecimal expense = billMapper.calculateMonthlyExpense(userId, month, year);

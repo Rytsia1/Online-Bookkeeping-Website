@@ -33,4 +33,16 @@ public interface BillMapper {
     @Select("SELECT COALESCE(SUM(amount), 0) FROM t_bill WHERE user_id = #{userId} AND type = 0 AND MONTH(bill_date) = #{month} AND YEAR(bill_date) = #{year}")
     BigDecimal calculateMonthlyExpense(Integer userId, int month, int year);
 
+    // Update: Mengedit tagihan
+    @org.apache.ibatis.annotations.Update("UPDATE t_bill SET amount=#{amount}, type=#{type}, category=#{category}, description=#{description}, bill_date=#{billDate} WHERE id=#{id}")
+    void updateBill(Bill bill);
+
+    // Mengambil statistik pengeluaran per kategori untuk Pie Chart (Hanya untuk type = 0 / Pengeluaran)
+    @org.apache.ibatis.annotations.Select("SELECT category AS name, SUM(amount) AS value FROM t_bill " +
+            "WHERE user_id = #{userId} AND type = 0 AND MONTH(bill_date) = #{month} AND YEAR(bill_date) = #{year} " +
+            "GROUP BY category")
+    java.util.List<com.DTMK.Online.Bookkeeping.Website.Project.dto.CategoryStatDTO> getExpenseByCategory(
+            @org.apache.ibatis.annotations.Param("userId") Integer userId,
+            @org.apache.ibatis.annotations.Param("month") int month,
+            @org.apache.ibatis.annotations.Param("year") int year);
 } // <--- Pastikan kurung penutup interface berada di paling bawah

@@ -1,45 +1,53 @@
 package com.DTMK.Online.Bookkeeping.Website.Project.controller;
 
-import com.DTMK.Online.Bookkeeping.Website.Project.dto.MonthlyStatsDTO;
 import com.DTMK.Online.Bookkeeping.Website.Project.entity.Bill;
-import com.DTMK.Online.Bookkeeping.Website.Project.service.BillService;
+import com.DTMK.Online.Bookkeeping.Website.Project.mapper.BillMapper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
-@RequestMapping("/api/bill")
+@RequestMapping("/api/bills") // Diubah menjadi jamak (bills)
 @RequiredArgsConstructor
 public class BillController {
 
-    private final BillService billService;
+    private final BillMapper billMapper;
 
-    // Menampilkan daftar tagihan milik user tertentu
-    @GetMapping("/list")
-    public List<Bill> getBills(@RequestParam Integer userId) {
-        return billService.getBills(userId);
+    // GET /api/bills?userId=1
+    @GetMapping
+    public ResponseEntity<List<Bill>> getBills(@RequestParam Integer userId) {
+        return ResponseEntity.ok(billMapper.findBillsByUserId(userId));
     }
 
-    // Menambahkan tagihan (Menggunakan @RequestBody karena datanya berbentuk JSON)
-    @PostMapping("/add")
-    public String addBill(@RequestBody Bill bill) {
-        return billService.addBill(bill);
+    // POST /api/bills
+    @PostMapping
+    public ResponseEntity<Map<String, String>> addBill(@RequestBody Bill bill) {
+        billMapper.insertBill(bill);
+        Map<String, String> response = new HashMap<>();
+        response.put("message", "Berhasil menambahkan tagihan");
+        return ResponseEntity.ok(response);
     }
 
-    // Menghapus tagihan
-    @DeleteMapping("/delete")
-    public String deleteBill(@RequestParam Integer id) {
-        return billService.deleteBill(id);
+    // PUT /api/bills/{id}
+    @PutMapping("/{id}")
+    public ResponseEntity<Map<String, String>> updateBill(@PathVariable Integer id, @RequestBody Bill bill) {
+        bill.setId(id);
+        billMapper.updateBill(bill);
+        Map<String, String> response = new HashMap<>();
+        response.put("message", "Berhasil memperbarui tagihan");
+        return ResponseEntity.ok(response);
     }
 
-    // Menampilkan statistik bulanan
-    @GetMapping("/stats/monthly")
-    public MonthlyStatsDTO getMonthlyStats(
-            @RequestParam Integer userId,
-            @RequestParam int month,
-            @RequestParam int year) {
-        return billService.getMonthlyStats(userId, month, year);
+    // DELETE /api/bills/{id}
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Map<String, String>> deleteBill(@PathVariable Integer id) {
+        billMapper.deleteBill(id);
+        Map<String, String> response = new HashMap<>();
+        response.put("message", "Berhasil menghapus tagihan");
+        return ResponseEntity.ok(response);
     }
-
-} // <--- Pastikan kurung penutup class berada di paling bawah
+}
