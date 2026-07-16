@@ -9,9 +9,9 @@ public class CorsConfig implements WebMvcConfigurer {
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/**") // Berlaku untuk semua endpoint (/api/user, /api/bill, dll)
-                .allowedOrigins("http://localhost:5173", "http://localhost:3000") // Mengizinkan URL Frontend Vue/Vite
-                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS") // Mengizinkan metode HTTP ini
+        registry.addMapping("/**") // Applies to all endpoints (/api/user, /api/bill, etc.)
+                .allowedOrigins("http://localhost:5173", "http://localhost:3000") // Allows Vue/Vite frontend URLs.
+                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS") // Allows these HTTP methods.
                 .allowedHeaders("*")
                 .allowCredentials(true);
     }

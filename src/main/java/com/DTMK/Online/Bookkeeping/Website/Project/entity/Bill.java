@@ -9,8 +9,8 @@ import java.time.LocalDateTime;
 public class Bill {
     private Integer id;
     private Integer userId;
-    private BigDecimal amount; // Sesuai standar industri keuangan, gunakan BigDecimal
-    private Integer type;      // 0 untuk pengeluaran, 1 untuk pemasukan
+    private BigDecimal amount; // Uses BigDecimal for financial precision.
+    private Integer type;      // 0 for expenses, 1 for income.
     private String category;
     private String description;
     private LocalDate billDate;

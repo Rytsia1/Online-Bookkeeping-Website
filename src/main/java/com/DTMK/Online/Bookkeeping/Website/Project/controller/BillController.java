@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/bills") // Diubah menjadi jamak (bills)
+@RequestMapping("/api/bills") // Uses the plural route expected by the frontend.
 @RequiredArgsConstructor
 public class BillController {
 
@@ -28,7 +28,7 @@ public class BillController {
     public ResponseEntity<Map<String, String>> addBill(@RequestBody Bill bill) {
         billMapper.insertBill(bill);
         Map<String, String> response = new HashMap<>();
-        response.put("message", "Berhasil menambahkan tagihan");
+        response.put("message", "Bill added successfully");
         return ResponseEntity.ok(response);
     }
 
@@ -38,7 +38,7 @@ public class BillController {
         bill.setId(id);
         billMapper.updateBill(bill);
         Map<String, String> response = new HashMap<>();
-        response.put("message", "Berhasil memperbarui tagihan");
+        response.put("message", "Bill updated successfully");
         return ResponseEntity.ok(response);
     }
 
@@ -47,7 +47,7 @@ public class BillController {
     public ResponseEntity<Map<String, String>> deleteBill(@PathVariable Integer id) {
         billMapper.deleteBill(id);
         Map<String, String> response = new HashMap<>();
-        response.put("message", "Berhasil menghapus tagihan");
+        response.put("message", "Bill deleted successfully");
         return ResponseEntity.ok(response);
     }
 }

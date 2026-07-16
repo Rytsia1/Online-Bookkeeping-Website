@@ -4,7 +4,7 @@
     <div class="page-header">
       <div class="header-left">
         <h1 class="page-title">Financial Analytics</h1>
-        <p class="page-subtitle">Klik potongan pie chart untuk melihat detail transaksi</p>
+        <p class="page-subtitle">Click a pie chart slice to view transaction details</p>
       </div>
 
       <!-- Month Navigator -->
@@ -92,13 +92,13 @@
           <div class="chart-header">
             <div>
               <h3 class="chart-title">Expense Distribution</h3>
-              <span class="chart-subtitle">By category · klik slice untuk detail</span>
+              <span class="chart-subtitle">By category · click a slice for details</span>
             </div>
             <span class="click-hint">
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5"/>
               </svg>
-              Klik slice
+              Click slice
             </span>
           </div>
           <div class="chart-body">
@@ -116,13 +116,13 @@
           <div class="chart-header">
             <div>
               <h3 class="chart-title">Transaction Summary</h3>
-              <span class="chart-subtitle">Income vs Expenses · klik slice untuk detail</span>
+              <span class="chart-subtitle">Income vs Expenses · click a slice for details</span>
             </div>
             <span class="click-hint">
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5"/>
               </svg>
-              Klik slice
+              Click slice
             </span>
           </div>
           <div class="chart-body">
@@ -159,7 +159,7 @@
             <span class="drawer-period">{{ MONTHS[selectedMonth - 1] }} {{ selectedYear }}</span>
           </div>
           <div class="drawer-summary">
-            <span class="drawer-count">{{ categoryTransactions.length }} transaksi</span>
+            <span class="drawer-count">{{ categoryTransactions.length }} transactions</span>
             <span class="drawer-total" :class="isIncomeMode ? 'drawer-total--income' : 'drawer-total--expense'">
               {{ isIncomeMode ? '+' : '-' }}{{ formatCurrency(categoryTotal) }}
             </span>
@@ -170,7 +170,7 @@
       <!-- Loading -->
       <div v-if="drawerLoading" class="drawer-loading">
         <div class="spinner"></div>
-        <span>Memuat transaksi...</span>
+        <span>Loading transactions...</span>
       </div>
 
       <!-- Transaction List -->
@@ -186,7 +186,7 @@
             <span class="tx-month-short">{{ formatMonthShort(tx.billDate) }}</span>
           </div>
           <div class="tx-info">
-            <span class="tx-desc">{{ tx.description || '(Tidak ada keterangan)' }}</span>
+            <span class="tx-desc">{{ tx.description || '(No description)' }}</span>
             <span class="tx-category-tag">{{ tx.category }}</span>
           </div>
           <span class="tx-amount" :class="isIncomeMode ? 'tx-amount--income' : 'tx-amount--expense'">
@@ -214,8 +214,8 @@ import PieChart from '@/components/PieChart.vue'
 import request from '@/utils/request'
 
 // ── Month state ──
-const MONTHS = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
-                 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember']
+const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June',
+                 'July', 'August', 'September', 'October', 'November', 'December']
 const today = new Date()
 const selectedMonth = ref(today.getMonth() + 1)
 const selectedYear  = ref(today.getFullYear())
@@ -265,7 +265,7 @@ const categoryTransactions = ref([])
 
 const PALETTE = ['#F05A14','#22C55E','#3B82F6','#F59E0B','#A855F7','#EC4899','#14B8A6','#FF7A3D','#6366F1','#EF4444']
 
-// Badge color: orange palette untuk category, hijau/merah untuk type
+// Badge color: orange palette for categories, green/red for transaction type
 const drawerBadgeColor = computed(() => {
   if (drawerMode.value === 'type') {
     return selectedCategory.value === 'Income' ? '#22C55E' : '#EF4444'
@@ -274,7 +274,7 @@ const drawerBadgeColor = computed(() => {
   return PALETTE[idx % PALETTE.length] ?? '#F05A14'
 })
 
-// Apakah drawer sedang menampilkan income?
+// Whether the drawer is currently showing income transactions.
 const isIncomeMode = computed(() =>
   drawerMode.value === 'type' && selectedCategory.value === 'Income'
 )
@@ -284,9 +284,9 @@ const categoryTotal = computed(() =>
 )
 
 const drawerEmptyText = computed(() => {
-  if (isIncomeMode.value) return 'Tidak ada transaksi income bulan ini'
-  if (drawerMode.value === 'type') return 'Tidak ada transaksi expense bulan ini'
-  return 'Tidak ada transaksi di kategori ini'
+  if (isIncomeMode.value) return 'No income transactions this month'
+  if (drawerMode.value === 'type') return 'No expense transactions this month'
+  return 'No transactions in this category'
 })
 
 // Responsive drawer size
@@ -308,7 +308,7 @@ const formatDay = (dateStr) => {
 
 const formatMonthShort = (dateStr) => {
   if (!dateStr) return ''
-  return new Date(dateStr).toLocaleDateString('id-ID', { month: 'short' })
+  return new Date(dateStr).toLocaleDateString('en-US', { month: 'short' })
 }
 
 // ── API calls ──
@@ -325,7 +325,7 @@ const fetchSummary = async () => {
       balance: data.balance      || 0,
     }
   } catch (e) {
-    ElMessage.error('Gagal memuat ringkasan')
+    ElMessage.error('Failed to load summary')
   } finally {
     loading.value = false
   }
@@ -341,7 +341,7 @@ const fetchCategoryData = async () => {
       ? data.map(item => ({ name: item.name || item.category, value: item.value || item.amount }))
       : []
   } catch (e) {
-    ElMessage.error('Gagal memuat data kategori')
+    ElMessage.error('Failed to load category data')
     categoryData.value = []
   }
 }
@@ -360,7 +360,7 @@ const fetchAnalytics = async () => {
 
 // ── Chart click handlers ──
 
-// Klik slice di "Expense Distribution" (per kategori)
+// Click handler for "Expense Distribution" slices by category.
 const handleCategoryClick = async (categoryName) => {
   selectedCategory.value     = categoryName
   drawerMode.value           = 'category'
@@ -375,15 +375,15 @@ const handleCategoryClick = async (categoryName) => {
     })
     categoryTransactions.value = Array.isArray(data) ? data : []
   } catch (e) {
-    ElMessage.error('Gagal memuat detail transaksi')
+    ElMessage.error('Failed to load transaction details')
   } finally {
     drawerLoading.value = false
   }
 }
 
-// Klik slice di "Transaction Summary" (Income atau Expenses)
+// Click handler for "Transaction Summary" slices by transaction type.
 const handleTypeClick = async (typeName) => {
-  if (typeName === 'Tidak ada data') return
+  if (typeName === 'No data') return
   const typeValue = typeName === 'Income' ? 1 : 0
 
   selectedCategory.value     = typeName
@@ -399,7 +399,7 @@ const handleTypeClick = async (typeName) => {
     })
     categoryTransactions.value = Array.isArray(data) ? data : []
   } catch (e) {
-    ElMessage.error('Gagal memuat transaksi')
+    ElMessage.error('Failed to load transactions')
   } finally {
     drawerLoading.value = false
   }
@@ -412,9 +412,9 @@ const closeDrawer = () => {
 }
 
 const refreshAnalytics = async () => {
-  ElMessage.info('Memperbarui data...')
+  ElMessage.info('Refreshing data...')
   await fetchAnalytics()
-  ElMessage.success('Data berhasil diperbarui')
+  ElMessage.success('Data refreshed successfully')
 }
 
 onMounted(fetchAnalytics)

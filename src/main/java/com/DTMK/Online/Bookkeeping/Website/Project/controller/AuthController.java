@@ -12,7 +12,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/auth") // Sesuai permintaan frontend
+@RequestMapping("/api/auth") // Matches the frontend route configuration.
 @RequiredArgsConstructor
 public class AuthController {
 
@@ -24,7 +24,7 @@ public class AuthController {
     public ResponseEntity<Map<String, Object>> register(@RequestBody User request) {
         Map<String, Object> response = new HashMap<>();
         if (userMapper.findByUsername(request.getUsername()) != null) {
-            response.put("error", "Username sudah terdaftar!");
+            response.put("error", "Username is already registered!");
             return ResponseEntity.badRequest().body(response);
         }
 
@@ -32,7 +32,7 @@ public class AuthController {
         request.setAvatar("default-avatar.png");
         userMapper.insertUser(request);
 
-        response.put("message", "Registrasi berhasil");
+        response.put("message", "Registration successful");
         return ResponseEntity.ok(response);
     }
 
@@ -42,14 +42,14 @@ public class AuthController {
         User user = userMapper.findByUsername(request.getUsername());
 
         if (user == null || !passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            response.put("error", "Username atau password salah!");
+            response.put("error", "Incorrect username or password!");
             return ResponseEntity.status(401).body(response);
         }
 
         // Generate JWT Token
         String token = jwtUtil.generateToken(user.getUsername());
 
-        response.put("message", "Login berhasil");
+        response.put("message", "Login successful");
         response.put("token", token);
         response.put("userId", user.getId());
         response.put("username", user.getUsername());

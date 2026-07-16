@@ -87,7 +87,7 @@
         </el-form-item>
 
         <el-form-item label="CATEGORY" prop="category">
-          <el-input v-model="formData.category" placeholder="e.g. Makanan, Transport, Gaji" size="large" />
+          <el-input v-model="formData.category" placeholder="e.g. Food, Transport, Salary" size="large" />
         </el-form-item>
 
         <el-form-item label="AMOUNT (USD)" prop="amount">

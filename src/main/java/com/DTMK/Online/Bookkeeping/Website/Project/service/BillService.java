@@ -25,12 +25,12 @@ public class BillService {
 
     public String addBill(Bill bill) {
         billMapper.insertBill(bill);
-        return "Sukses: Catatan keuangan berhasil ditambahkan!";
+        return "Success: Financial record added successfully!";
     }
 
     public String deleteBill(Integer id) {
         billMapper.deleteBill(id);
-        return "Sukses: Catatan keuangan berhasil dihapus!";
+        return "Success: Financial record deleted successfully!";
     }
 
     public List<com.DTMK.Online.Bookkeeping.Website.Project.dto.CategoryStatDTO> getExpenseByCategory(Integer userId, int month, int year) {
@@ -40,7 +40,7 @@ public class BillService {
     public MonthlyStatsDTO getMonthlyStats(Integer userId, int month, int year) {
         BigDecimal income = billMapper.calculateMonthlyIncome(userId, month, year);
         BigDecimal expense = billMapper.calculateMonthlyExpense(userId, month, year);
-        BigDecimal balance = income.subtract(expense); // Pemasukan dikurangi Pengeluaran
+        BigDecimal balance = income.subtract(expense); // Income minus expenses.
 
         MonthlyStatsDTO stats = new MonthlyStatsDTO();
         stats.setTotalIncome(income);
@@ -73,4 +73,4 @@ public class BillService {
         return billMapper.findBillsByTypeAndMonth(userId, type, month, year);
     }
 
-} // <--- Pastikan kurung penutup class berada di paling bawah
+}

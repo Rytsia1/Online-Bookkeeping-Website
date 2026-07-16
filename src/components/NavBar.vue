@@ -52,16 +52,16 @@ const router   = useRouter()
 const username = computed(() => localStorage.getItem('username') || 'user')
 
 const handleLogout = () => {
-  ElMessageBox.confirm('Yakin ingin keluar?', 'Konfirmasi', {
+  ElMessageBox.confirm('Are you sure you want to log out?', 'Confirmation', {
     confirmButtonText: 'Logout',
-    cancelButtonText: 'Batal',
+    cancelButtonText: 'Cancel',
     type: 'warning',
   }).then(() => {
     localStorage.removeItem('token')
     localStorage.removeItem('username')
     localStorage.removeItem('userId')
     router.push('/login')
-    ElMessage.success('Berhasil logout')
+    ElMessage.success('Logged out successfully')
   }).catch(() => {})
 }
 </script>

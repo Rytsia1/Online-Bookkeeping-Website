@@ -8,6 +8,6 @@ public class TestController {
 
     @GetMapping("/api/test")
     public String tesKoneksi() {
-        return "Backend Spring Boot Sistem Pembukuan Berhasil Berjalan!";
+        return "Spring Boot bookkeeping backend is running successfully!";
     }
 }

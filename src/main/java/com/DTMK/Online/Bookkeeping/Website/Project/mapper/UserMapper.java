@@ -12,19 +12,19 @@ import java.math.BigDecimal;
 @Mapper
 public interface UserMapper {
 
-    // Mencari user berdasarkan username (berguna untuk Login dan cek duplikasi saat Register)
+    // Finds a user by username for login and duplicate checks during registration.
     @Select("SELECT * FROM t_user WHERE username = #{username}")
     User findByUsername(String username);
 
-    // Menyimpan user baru ke database (berguna untuk Register)
+    // Saves a new user to the database during registration.
     @Insert("INSERT INTO t_user(username, password, avatar) VALUES(#{username}, #{password}, #{avatar})")
     void insertUser(User user);
 
-    // Mencari user berdasarkan ID
+    // Finds a user by ID.
     @Select("SELECT * FROM t_user WHERE id = #{id}")
     User findById(@Param("id") Integer id);
 
-    // Memperbarui target anggaran bulanan user
+    // Updates the user's monthly budget target.
     @Update("UPDATE t_user SET monthly_budget = #{monthlyBudget} WHERE id = #{userId}")
     void updateMonthlyBudget(@Param("userId") Integer userId, @Param("monthlyBudget") BigDecimal monthlyBudget);
 }

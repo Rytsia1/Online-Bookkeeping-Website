@@ -15,7 +15,7 @@
         </div>
         <div class="alert-bar__body">
           <strong>{{ monthlySummary.budgetExceeded ? 'BUDGET EXCEEDED' : 'BUDGET WARNING' }}</strong>
-          <span>Pengeluaran {{ formatCurrencyUSD(monthlySummary.expense) }} — {{ (monthlySummary.budgetUsedPercent || 0).toFixed(1) }}% dari {{ formatCurrencyUSD(monthlySummary.monthlyBudget) }}</span>
+          <span>Expenses {{ formatCurrencyUSD(monthlySummary.expense) }} of {{ formatCurrencyUSD(monthlySummary.monthlyBudget) }} ({{ (monthlySummary.budgetUsedPercent || 0).toFixed(1) }}%)</span>
         </div>
         <button class="alert-bar__close" @click="dismissAlert">✕</button>
       </div>
@@ -154,10 +154,10 @@
                   }">{{ (monthlySummary.budgetUsedPercent || 0).toFixed(1) }}% used</span>
                   <span class="text-ash mono">
                     <template v-if="!monthlySummary.budgetExceeded">
-                      sisa {{ formatCurrencyUSD(monthlySummary.monthlyBudget - monthlySummary.expense) }}
+                      remaining {{ formatCurrencyUSD(monthlySummary.monthlyBudget - monthlySummary.expense) }}
                     </template>
                     <template v-else>
-                      lebih {{ formatCurrencyUSD(monthlySummary.expense - monthlySummary.monthlyBudget) }}
+                      over by {{ formatCurrencyUSD(monthlySummary.expense - monthlySummary.monthlyBudget) }}
                     </template>
                   </span>
                 </div>
@@ -202,7 +202,7 @@
     <!-- Budget Dialog -->
     <el-dialog v-model="budgetDialogVisible" title="Set Monthly Budget" width="400px" class="forge-dialog">
       <div class="dialog-body">
-        <p class="dialog-desc">Tetapkan batas maksimal pengeluaran bulanan. Alert akan muncul saat mendekati atau melampaui batas.</p>
+        <p class="dialog-desc">Set the maximum monthly spending limit. An alert will appear when spending approaches or exceeds the limit.</p>
         <el-form label-position="top">
           <el-form-item label="TARGET BUDGET (USD)">
             <el-input-number
@@ -263,7 +263,7 @@ const userName = computed(() => localStorage.getItem('username') || 'user')
 
 const currentDate = computed(() => {
   const today = new Date()
-  return today.toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
+  return today.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
 })
 
 const recentBills = computed(() => bills.value.slice(0, 6))
@@ -285,7 +285,7 @@ const statusText = computed(() => {
   return 'Balanced'
 })
 
-const lastUpdate = computed(() => new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }))
+const lastUpdate = computed(() => new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }))
 
 const formatCurrencyUSD = (amount) => {
   if (amount == null) return '$ 0'
@@ -306,12 +306,12 @@ const saveBudget = async () => {
     budgetSaving.value = true
     const userId = localStorage.getItem('userId')
     await request.put('/budget', { userId: Number(userId), monthlyBudget: budgetInput.value })
-    ElMessage.success('Anggaran berhasil disimpan')
+    ElMessage.success('Budget saved successfully')
     budgetDialogVisible.value = false
     alertDismissed.value = false
     await fetchMonthlySummary()
   } catch (e) {
-    ElMessage.error('Gagal menyimpan anggaran')
+    ElMessage.error('Failed to save budget')
   } finally {
     budgetSaving.value = false
   }

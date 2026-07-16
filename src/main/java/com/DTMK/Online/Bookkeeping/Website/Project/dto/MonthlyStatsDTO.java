@@ -7,9 +7,9 @@ import java.math.BigDecimal;
 public class MonthlyStatsDTO {
     private BigDecimal totalIncome;
     private BigDecimal totalExpense;
-    private BigDecimal balance;          // Saldo (Pemasukan - Pengeluaran)
-    private BigDecimal monthlyBudget;    // Target anggaran (null jika belum diset)
-    private BigDecimal budgetUsedPercent; // Persentase pengeluaran (0-100+)
-    private boolean budgetWarning;        // true jika >= 80%
-    private boolean budgetExceeded;       // true jika >= 100%
+    private BigDecimal balance;          // Balance (income - expenses)
+    private BigDecimal monthlyBudget;    // Budget target (null if unset)
+    private BigDecimal budgetUsedPercent; // Expense percentage (0-100+)
+    private boolean budgetWarning;        // true if >= 80%
+    private boolean budgetExceeded;       // true if >= 100%
 }

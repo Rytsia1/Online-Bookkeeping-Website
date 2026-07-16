@@ -31,7 +31,7 @@ public class StatsController {
         return ResponseEntity.ok(billService.getExpenseByCategory(userId, month, year));
     }
 
-    // GET /api/stats/transactions?userId=1&category=Makanan&month=7&year=2026
+    // GET /api/stats/transactions?userId=1&category=Food&month=7&year=2026
     @GetMapping("/transactions")
     public ResponseEntity<java.util.List<com.DTMK.Online.Bookkeeping.Website.Project.entity.Bill>> getTransactionsByCategory(
             @RequestParam Integer userId,

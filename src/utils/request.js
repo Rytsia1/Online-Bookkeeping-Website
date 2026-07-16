@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 const instance = axios.create({
-    // Ubah baris ini dengan menambahkan alamat localhost back-end
+    // Update this line with the local back-end address.
     baseURL: 'http://localhost:8080/api',
     timeout: 10000,
 })

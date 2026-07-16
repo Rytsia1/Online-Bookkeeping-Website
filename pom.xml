@@ -62,13 +62,13 @@
 			<scope>test</scope>
 		</dependency>
 
-		<!-- Library untuk Keamanan dan Enkripsi (Spring Security) -->
+		<!-- Security and encryption library (Spring Security) -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-security</artifactId>
 		</dependency>
 
-		<!-- Library untuk JWT (JSON Web Token) -->
+		<!-- JWT library (JSON Web Token) -->
 		<dependency>
 			<groupId>io.jsonwebtoken</groupId>
 			<artifactId>jjwt-api</artifactId>

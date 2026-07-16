@@ -11,38 +11,38 @@ public class UserService {
 
     private final UserMapper userMapper;
 
-    // --- FITUR REGISTER ---
+    // --- REGISTER FEATURE ---
     public String registerUser(String username, String password) {
         User existingUser = userMapper.findByUsername(username);
         if (existingUser != null) {
-            return "Gagal: Username sudah terdaftar!";
+            return "Failed: Username is already registered!";
         }
 
         User newUser = new User();
         newUser.setUsername(username);
-        newUser.setPassword(password); // Nanti kita tambah enkripsi di tahap *finishing*
+        newUser.setPassword(password); // Encryption can be added during the finishing stage.
         newUser.setAvatar("default-avatar.png");
 
         userMapper.insertUser(newUser);
-        return "Sukses: Registrasi berhasil!";
+        return "Success: Registration successful!";
     }
 
-    // --- FITUR LOGIN (BARU) ---
+    // --- LOGIN FEATURE ---
     public String loginUser(String username, String password) {
-        // 1. Cari user di database
+        // 1. Find the user in the database.
         User user = userMapper.findByUsername(username);
 
-        // 2. Validasi apakah user ada
+        // 2. Validate that the user exists.
         if (user == null) {
-            return "Gagal: Username tidak ditemukan!";
+            return "Failed: Username not found!";
         }
 
-        // 3. Validasi apakah password cocok
+        // 3. Validate that the password matches.
         if (!user.getPassword().equals(password)) {
-            return "Gagal: Password salah!";
+            return "Failed: Incorrect password!";
         }
 
-        // 4. Jika semua benar (Nantinya kita akan buatkan Token JWT di sini)
-        return "Sukses: Berhasil login! Selamat datang, " + user.getUsername();
+        // 4. If all checks pass, a JWT token can be generated here later.
+        return "Success: Login successful! Welcome, " + user.getUsername();
     }
 }

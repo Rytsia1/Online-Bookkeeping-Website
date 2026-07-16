@@ -18,7 +18,7 @@ const props = defineProps({
   },
   title: {
     type: String,
-    default: 'Distribusi Pengeluaran',
+    default: 'Expense Distribution',
   },
   clickable: {
     type: Boolean,
@@ -55,7 +55,7 @@ const buildOption = (data) => ({
   },
   series: [
     {
-      name: 'Kategori',
+      name: 'Category',
       type: 'pie',
       radius: ['42%', '68%'],
       center: ['40%', '50%'],
@@ -84,7 +84,7 @@ const buildOption = (data) => ({
       cursor: props.clickable ? 'pointer' : 'default',
       data: data.length
         ? data
-        : [{ value: 0, name: 'Tidak ada data', itemStyle: { color: '#232323' } }],
+        : [{ value: 0, name: 'No data', itemStyle: { color: '#232323' } }],
     },
   ],
 })
@@ -96,7 +96,7 @@ const initChart = () => {
 
   if (props.clickable) {
     chartInstance.on('click', (params) => {
-      if (params.data?.name && params.data.name !== 'Tidak ada data') {
+      if (params.data?.name && params.data.name !== 'No data') {
         emit('sliceClick', params.data.name)
       }
     })
@@ -112,7 +112,7 @@ const handleResize = () => {
 watch(
   () => props.data,
   (newData) => {
-    chartInstance?.setOption({ series: [{ data: newData.length ? newData : [{ value: 0, name: 'Tidak ada data', itemStyle: { color: '#2a2a3a' } }] }] })
+    chartInstance?.setOption({ series: [{ data: newData.length ? newData : [{ value: 0, name: 'No data', itemStyle: { color: '#2a2a3a' } }] }] })
   },
   { deep: true }
 )

@@ -12,32 +12,32 @@ import java.util.List;
 @Mapper
 public interface BillMapper {
 
-    // Read: Mengambil tagihan berdasarkan ID User
+    // Read: retrieves bills by user ID.
     @Select("SELECT * FROM t_bill WHERE user_id = #{userId} ORDER BY bill_date DESC")
     List<Bill> findBillsByUserId(Integer userId);
 
-    // Create: Menambahkan tagihan baru
+    // Create: adds a new bill.
     @Insert("INSERT INTO t_bill(user_id, amount, type, category, description, bill_date) " +
             "VALUES(#{userId}, #{amount}, #{type}, #{category}, #{description}, #{billDate})")
     void insertBill(Bill bill);
 
-    // Delete: Menghapus tagihan berdasarkan ID Tagihan
+    // Delete: removes a bill by bill ID.
     @Delete("DELETE FROM t_bill WHERE id = #{id}")
     void deleteBill(Integer id);
 
-    // Menghitung total pemasukan bulanan
+    // Calculates total monthly income.
     @Select("SELECT COALESCE(SUM(amount), 0) FROM t_bill WHERE user_id = #{userId} AND type = 1 AND MONTH(bill_date) = #{month} AND YEAR(bill_date) = #{year}")
     BigDecimal calculateMonthlyIncome(Integer userId, int month, int year);
 
-    // Menghitung total pengeluaran bulanan
+    // Calculates total monthly expenses.
     @Select("SELECT COALESCE(SUM(amount), 0) FROM t_bill WHERE user_id = #{userId} AND type = 0 AND MONTH(bill_date) = #{month} AND YEAR(bill_date) = #{year}")
     BigDecimal calculateMonthlyExpense(Integer userId, int month, int year);
 
-    // Update: Mengedit tagihan
+    // Update: edits a bill.
     @org.apache.ibatis.annotations.Update("UPDATE t_bill SET amount=#{amount}, type=#{type}, category=#{category}, description=#{description}, bill_date=#{billDate} WHERE id=#{id}")
     void updateBill(Bill bill);
 
-    // Mengambil statistik pengeluaran per kategori untuk Pie Chart (Hanya untuk type = 0 / Pengeluaran)
+    // Retrieves expense statistics by category for the pie chart (type = 0 only).
     @org.apache.ibatis.annotations.Select("SELECT category AS name, SUM(amount) AS value FROM t_bill " +
             "WHERE user_id = #{userId} AND type = 0 AND MONTH(bill_date) = #{month} AND YEAR(bill_date) = #{year} " +
             "GROUP BY category")
@@ -45,7 +45,7 @@ public interface BillMapper {
             @org.apache.ibatis.annotations.Param("userId") Integer userId,
             @org.apache.ibatis.annotations.Param("month") int month,
             @org.apache.ibatis.annotations.Param("year") int year);
-    // Mengambil daftar tagihan berdasarkan kategori & bulan untuk detail chart
+    // Retrieves bills by category and month for chart details.
     @Select("SELECT * FROM t_bill " +
             "WHERE user_id = #{userId} AND category = #{category} " +
             "AND type = 0 " +
@@ -56,7 +56,7 @@ public interface BillMapper {
             @org.apache.ibatis.annotations.Param("category") String category,
             @org.apache.ibatis.annotations.Param("month") int month,
             @org.apache.ibatis.annotations.Param("year") int year);
-    // Mengambil daftar tagihan berdasarkan type (0=expense, 1=income) & bulan
+    // Retrieves bills by type (0 = expense, 1 = income) and month.
     @Select("SELECT * FROM t_bill " +
             "WHERE user_id = #{userId} AND type = #{type} " +
             "AND MONTH(bill_date) = #{month} AND YEAR(bill_date) = #{year} " +
@@ -66,4 +66,4 @@ public interface BillMapper {
             @org.apache.ibatis.annotations.Param("type") int type,
             @org.apache.ibatis.annotations.Param("month") int month,
             @org.apache.ibatis.annotations.Param("year") int year);
-} // <--- Pastikan kurung penutup interface berada di paling bawah
+}
