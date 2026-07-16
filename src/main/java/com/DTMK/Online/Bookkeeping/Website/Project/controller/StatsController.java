@@ -30,4 +30,24 @@ public class StatsController {
             @RequestParam int year) {
         return ResponseEntity.ok(billService.getExpenseByCategory(userId, month, year));
     }
+
+    // GET /api/stats/transactions?userId=1&category=Makanan&month=7&year=2026
+    @GetMapping("/transactions")
+    public ResponseEntity<java.util.List<com.DTMK.Online.Bookkeeping.Website.Project.entity.Bill>> getTransactionsByCategory(
+            @RequestParam Integer userId,
+            @RequestParam String category,
+            @RequestParam int month,
+            @RequestParam int year) {
+        return ResponseEntity.ok(billService.getBillsByCategory(userId, category, month, year));
+    }
+
+    // GET /api/stats/bills-by-type?userId=1&type=0&month=7&year=2026
+    @GetMapping("/bills-by-type")
+    public ResponseEntity<java.util.List<com.DTMK.Online.Bookkeeping.Website.Project.entity.Bill>> getBillsByType(
+            @RequestParam Integer userId,
+            @RequestParam int type,
+            @RequestParam int month,
+            @RequestParam int year) {
+        return ResponseEntity.ok(billService.getBillsByType(userId, type, month, year));
+    }
 }

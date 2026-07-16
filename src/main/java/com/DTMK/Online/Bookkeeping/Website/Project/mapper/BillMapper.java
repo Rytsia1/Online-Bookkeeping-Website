@@ -45,4 +45,25 @@ public interface BillMapper {
             @org.apache.ibatis.annotations.Param("userId") Integer userId,
             @org.apache.ibatis.annotations.Param("month") int month,
             @org.apache.ibatis.annotations.Param("year") int year);
+    // Mengambil daftar tagihan berdasarkan kategori & bulan untuk detail chart
+    @Select("SELECT * FROM t_bill " +
+            "WHERE user_id = #{userId} AND category = #{category} " +
+            "AND type = 0 " +
+            "AND MONTH(bill_date) = #{month} AND YEAR(bill_date) = #{year} " +
+            "ORDER BY bill_date DESC")
+    List<Bill> findBillsByCategoryAndMonth(
+            @org.apache.ibatis.annotations.Param("userId") Integer userId,
+            @org.apache.ibatis.annotations.Param("category") String category,
+            @org.apache.ibatis.annotations.Param("month") int month,
+            @org.apache.ibatis.annotations.Param("year") int year);
+    // Mengambil daftar tagihan berdasarkan type (0=expense, 1=income) & bulan
+    @Select("SELECT * FROM t_bill " +
+            "WHERE user_id = #{userId} AND type = #{type} " +
+            "AND MONTH(bill_date) = #{month} AND YEAR(bill_date) = #{year} " +
+            "ORDER BY bill_date DESC")
+    List<Bill> findBillsByTypeAndMonth(
+            @org.apache.ibatis.annotations.Param("userId") Integer userId,
+            @org.apache.ibatis.annotations.Param("type") int type,
+            @org.apache.ibatis.annotations.Param("month") int month,
+            @org.apache.ibatis.annotations.Param("year") int year);
 } // <--- Pastikan kurung penutup interface berada di paling bawah

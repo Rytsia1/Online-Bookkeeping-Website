@@ -1,74 +1,75 @@
 <template>
-  <div class="login-container">
-    <div class="login-wrapper">
-      <div class="brand-section">
-        <div class="brand-logo">
-          <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
-            <rect width="48" height="48" rx="12" fill="url(#grad)" />
-            <path d="M14 24h20M24 14v20" stroke="#fff" stroke-width="3" stroke-linecap="round" />
-            <defs>
-              <linearGradient id="grad" x1="0" y1="0" x2="48" y2="48">
-                <stop stop-color="#6366f1" />
-                <stop offset="1" stop-color="#8b5cf6" />
-              </linearGradient>
-            </defs>
-          </svg>
-        </div>
-        <h1 class="brand-name">BookKeeping</h1>
-        <p class="brand-tagline">Manage your finances with ease</p>
+  <div class="auth-page">
+    <!-- Left: Marketing -->
+    <div class="auth-left">
+      <div class="auth-brand">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+          <rect width="24" height="24" rx="3" fill="#F05A14"/>
+          <path d="M6 12h12M12 6v12" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/>
+        </svg>
+        <span>BOOKKEEPING</span>
       </div>
+      <div class="auth-hero">
+        <h1>Financial<br/>clarity<br/><span class="accent">starts here.</span></h1>
+        <p>Track every rupiah. Set monthly budgets. Understand where your money goes — all in one place.</p>
+      </div>
+      <div class="auth-stats">
+        <div class="auth-stat">
+          <span class="auth-stat__num">100%</span>
+          <span class="auth-stat__label">Private</span>
+        </div>
+        <div class="auth-stat">
+          <span class="auth-stat__num">0ms</span>
+          <span class="auth-stat__label">Latency</span>
+        </div>
+        <div class="auth-stat">
+          <span class="auth-stat__num">&#8734;</span>
+          <span class="auth-stat__label">Entries</span>
+        </div>
+      </div>
+    </div>
 
-      <el-card class="login-card">
-        <h2 class="form-title">Sign In</h2>
-        <p class="form-subtitle">Enter your credentials to continue</p>
+    <!-- Right: Form -->
+    <div class="auth-right">
+      <div class="auth-form-wrapper">
+        <div class="form-header">
+          <p class="form-eyebrow">AUTHENTICATION</p>
+          <h2 class="form-title">Sign In</h2>
+          <p class="form-desc">Enter your credentials to continue</p>
+        </div>
 
-        <el-form
-          ref="loginFormRef"
-          :model="loginForm"
-          :rules="loginRules"
-          label-position="top"
-          @keyup.enter="handleLogin"
-        >
-          <el-form-item label="Username" prop="username">
+        <el-form ref="loginFormRef" :model="loginForm" :rules="loginRules" label-position="top" @keyup.enter="handleLogin">
+          <el-form-item label="USERNAME" prop="username">
             <el-input
               v-model="loginForm.username"
-              placeholder="Enter your username"
-              clearable
+              placeholder="your username"
               size="large"
-              @keyup.enter="handleLogin"
+              clearable
             />
           </el-form-item>
 
-          <el-form-item label="Password" prop="password">
+          <el-form-item label="PASSWORD" prop="password">
             <el-input
               v-model="loginForm.password"
               type="password"
-              placeholder="Enter your password"
+              placeholder="••••••••"
               show-password
-              clearable
               size="large"
-              @keyup.enter="handleLogin"
+              clearable
             />
           </el-form-item>
 
-          <el-form-item>
-            <el-button
-              type="primary"
-              @click="handleLogin"
-              :loading="isLoading"
-              class="login-button"
-              size="large"
-            >
-              {{ isLoading ? 'Signing in...' : 'Sign In' }}
-            </el-button>
-          </el-form-item>
+          <button type="button" class="submit-btn" :disabled="isLoading" @click="handleLogin">
+            <span v-if="!isLoading">SIGN IN &rarr;</span>
+            <span v-else>SIGNING IN...</span>
+          </button>
         </el-form>
 
-        <div class="register-link">
-          <span>Don't have an account?</span>
-          <router-link to="/register" class="link-text">Register now</router-link>
-        </div>
-      </el-card>
+        <p class="form-footer">
+          Don't have an account?
+          <router-link to="/register" class="form-link">Create one &rarr;</router-link>
+        </p>
+      </div>
     </div>
   </div>
 </template>
@@ -79,89 +80,47 @@ import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import request from '@/utils/request'
 
-const router = useRouter()
+const router      = useRouter()
 const loginFormRef = ref()
-const isLoading = ref(false)
+const isLoading   = ref(false)
 
-const loginForm = reactive({
-  username: '',
-  password: ''
-})
+const loginForm = reactive({ username: '', password: '' })
 
-// Validation rules for login form
 const loginRules = {
   username: [
-    {
-      required: true,
-      message: 'Username is required',
-      trigger: 'blur'
-    },
-    {
-      min: 3,
-      max: 20,
-      message: 'Username must be between 3 and 20 characters',
-      trigger: 'blur'
-    }
+    { required: true, message: 'Username is required', trigger: 'blur' },
+    { min: 3, max: 20, message: '3-20 characters', trigger: 'blur' },
   ],
   password: [
-    {
-      required: true,
-      message: 'Password is required',
-      trigger: 'blur'
-    },
-    {
-      min: 6,
-      message: 'Password must be at least 6 characters',
-      trigger: 'blur'
-    }
-  ]
+    { required: true, message: 'Password is required', trigger: 'blur' },
+    { min: 6, message: 'Min 6 characters', trigger: 'blur' },
+  ],
 }
 
-/**
- * Handle login action
- * Validate form before making API call
- */
 const handleLogin = async () => {
-  // Validate form first
   try {
     await loginFormRef.value.validate()
-  } catch (error) {
-    ElMessage.error('Please fix the form errors')
-    return
-  }
+  } catch { return }
 
   isLoading.value = true
-
   try {
-    // Make API call to login endpoint
     const response = await request.post('/auth/login', {
       username: loginForm.username,
-      password: loginForm.password
+      password: loginForm.password,
     })
-
-    // Save token to localStorage
-    // response interceptor already unwraps response.data
-    const token = response.token || response.data?.token
+    const token  = response.token  || response.data?.token
+    const userId = response.userId || response.data?.userId
     if (token) {
       localStorage.setItem('token', token)
       localStorage.setItem('username', loginForm.username)
-      ElMessage.success('Login successful!')
-
-      // Redirect to dashboard after a short delay
-      setTimeout(() => {
-        router.push('/dashboard')
-      }, 500)
+      if (userId) localStorage.setItem('userId', String(userId))
+      ElMessage.success('Welcome back!')
+      setTimeout(() => router.push('/dashboard'), 400)
     } else {
       ElMessage.error('Login failed: No token received')
     }
-  } catch (error) {
-    // Handle error response
-    const errorMessage =
-      error.response?.data?.message ||
-      error.response?.statusText ||
-      'Login failed. Please try again.'
-
-    ElMessage.error(errorMessage)
+  } catch (e) {
+    ElMessage.error(e.response?.data?.error || 'Login failed. Please try again.')
   } finally {
     isLoading.value = false
   }
@@ -169,152 +128,160 @@ const handleLogin = async () => {
 </script>
 
 <style scoped>
-.login-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
+.auth-page {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   min-height: 100vh;
-  background: #0f0f13;
-  background-image:
-    radial-gradient(ellipse at 20% 50%, rgba(99, 102, 241, 0.08) 0%, transparent 50%),
-    radial-gradient(ellipse at 80% 20%, rgba(139, 92, 246, 0.06) 0%, transparent 50%);
-  padding: 20px;
+  background: var(--ink);
 }
 
-.login-wrapper {
+/* Left panel */
+.auth-left {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  width: 100%;
-  max-width: 420px;
+  justify-content: space-between;
+  padding: 48px;
+  background: var(--graphite);
+  border-right: 1px solid var(--wire);
 }
 
-.brand-section {
-  text-align: center;
+.auth-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: var(--white);
+}
+
+.auth-hero {
+  padding: 40px 0;
+}
+
+.auth-hero h1 {
+  font-family: var(--font-display);
+  font-size: 52px;
+  font-weight: 700;
+  line-height: 1.05;
+  color: var(--white);
+  margin-bottom: 20px;
+}
+
+.accent { color: var(--ember); }
+
+.auth-hero p {
+  font-size: 15px;
+  color: var(--muted);
+  line-height: 1.7;
+  max-width: 360px;
+}
+
+.auth-stats {
+  display: flex;
+  gap: 40px;
+}
+
+.auth-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.auth-stat__num {
+  font-family: var(--font-mono);
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--white);
+}
+
+.auth-stat__label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  color: var(--ash);
+  text-transform: uppercase;
+}
+
+/* Right panel */
+.auth-right {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 48px;
+}
+
+.auth-form-wrapper {
+  width: 100%;
+  max-width: 360px;
+}
+
+.form-header {
   margin-bottom: 32px;
 }
 
-.brand-logo {
-  margin-bottom: 16px;
-}
-
-.brand-name {
-  font-size: 28px;
+.form-eyebrow {
+  font-size: 10px;
   font-weight: 700;
-  color: #f1f5f9;
-  letter-spacing: -0.5px;
-}
-
-.brand-tagline {
-  font-size: 14px;
-  color: #64748b;
-  margin-top: 6px;
-}
-
-.login-card {
-  width: 100%;
-  background: #1a1a24;
-  border: 1px solid #2a2a3a;
-  border-radius: 16px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
-}
-
-.login-card :deep(.el-card__body) {
-  padding: 32px;
+  letter-spacing: 2px;
+  color: var(--ember);
+  margin-bottom: 10px;
 }
 
 .form-title {
-  font-size: 22px;
-  font-weight: 600;
-  color: #f1f5f9;
+  font-family: var(--font-display);
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--white);
   margin-bottom: 6px;
 }
 
-.form-subtitle {
-  font-size: 14px;
-  color: #64748b;
-  margin-bottom: 28px;
-}
-
-.login-card :deep(.el-form-item__label) {
-  color: #94a3b8;
-  font-weight: 500;
+.form-desc {
   font-size: 13px;
+  color: var(--ash);
 }
 
-.login-card :deep(.el-input__wrapper) {
-  background: #12121a;
-  border: 1px solid #2a2a3a;
-  border-radius: 10px;
-  box-shadow: none;
-  transition: border-color 0.2s ease;
-}
+.auth-form-wrapper :deep(.el-form-item) { margin-bottom: 20px; }
 
-.login-card :deep(.el-input__wrapper:hover) {
-  border-color: #6366f1;
-}
-
-.login-card :deep(.el-input__wrapper.is-focus) {
-  border-color: #6366f1;
-  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
-}
-
-.login-card :deep(.el-input__inner) {
-  color: #f1f5f9;
-}
-
-.login-card :deep(.el-input__inner::placeholder) {
-  color: #475569;
-}
-
-.login-button {
+.submit-btn {
   width: 100%;
-  font-size: 15px;
-  font-weight: 600;
-  padding: 12px;
-  border-radius: 10px;
-  background: linear-gradient(135deg, #6366f1, #8b5cf6);
-  border: none;
-  transition: all 0.3s ease;
+  padding: 13px;
   margin-top: 8px;
+  background: var(--ember);
+  border: none;
+  border-radius: 3px;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  font-family: var(--font-body);
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: background 0.15s;
 }
+.submit-btn:hover:not(:disabled) { background: var(--spark); }
+.submit-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
-.login-button:hover {
-  background: linear-gradient(135deg, #4f46e5, #7c3aed);
-  transform: translateY(-1px);
-  box-shadow: 0 8px 24px rgba(99, 102, 241, 0.3);
-}
-
-.register-link {
+.form-footer {
+  margin-top: 24px;
+  font-size: 13px;
+  color: var(--ash);
   text-align: center;
-  font-size: 14px;
-  color: #64748b;
-  margin-top: 16px;
 }
 
-.link-text {
+.form-link {
   margin-left: 6px;
-  color: #6366f1;
+  color: var(--ember);
   text-decoration: none;
   font-weight: 600;
-  transition: color 0.2s ease;
+  transition: color 0.15s;
 }
+.form-link:hover { color: var(--spark); }
 
-.link-text:hover {
-  color: #8b5cf6;
-}
-
-@media (max-width: 480px) {
-  .login-card :deep(.el-card__body) {
-    padding: 24px 20px;
-  }
-
-  .brand-name {
-    font-size: 24px;
-  }
-
-  .form-title {
-    font-size: 20px;
-  }
+/* Responsive */
+@media (max-width: 900px) {
+  .auth-page { grid-template-columns: 1fr; }
+  .auth-left { display: none; }
+  .auth-right { padding: 40px 24px; align-items: flex-start; padding-top: 80px; }
 }
 </style>

@@ -1,5 +1,5 @@
 <template>
-  <div ref="chartContainer" class="pie-chart-container"></div>
+  <div ref="chartContainer" class="pie-chart-container" :class="{ 'clickable-chart': clickable }"></div>
 </template>
 
 <script setup>
@@ -9,7 +9,6 @@ import { PieChart as PieChartSeries } from 'echarts/charts'
 import { TitleComponent, TooltipComponent, LegendComponent } from 'echarts/components'
 import { CanvasRenderer } from 'echarts/renderers'
 
-// Register only the components we need
 echarts.use([PieChartSeries, TitleComponent, TooltipComponent, LegendComponent, CanvasRenderer])
 
 const props = defineProps({
@@ -21,136 +20,123 @@ const props = defineProps({
     type: String,
     default: 'Distribusi Pengeluaran',
   },
+  clickable: {
+    type: Boolean,
+    default: false,
+  },
 })
+
+const emit = defineEmits(['sliceClick'])
 
 const chartContainer = ref(null)
 let chartInstance = null
 
-// Initialize chart
-const initChart = () => {
-  if (!chartContainer.value) return
+const PALETTE = ['#F05A14', '#22C55E', '#3B82F6', '#F59E0B', '#A855F7', '#EC4899', '#14B8A6', '#FF7A3D', '#6366F1', '#EF4444']
 
-  chartInstance = echarts.init(chartContainer.value)
-
-  const option = {
-    title: {
-      text: props.title,
-      left: 'center',
-      top: 20,
-      textStyle: {
-        fontSize: 16,
-        fontWeight: 'bold',
-        color: '#333',
+const buildOption = (data) => ({
+  backgroundColor: 'transparent',
+  tooltip: {
+    trigger: 'item',
+    backgroundColor: '#111111',
+    borderColor: '#232323',
+    textStyle: { color: '#DEDEDE', fontSize: 13 },
+    formatter: (p) => {
+      const val = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(p.value)
+      return `<b>${p.name}</b><br/>${val} <span style="color:#94a3b8">(${p.percent.toFixed(1)}%)</span>`
+    },
+  },
+  legend: {
+    orient: 'vertical',
+    right: '2%',
+    top: 'center',
+    textStyle: { color: '#8A8A8A', fontSize: 12 },
+    itemWidth: 12,
+    itemHeight: 12,
+  },
+  series: [
+    {
+      name: 'Kategori',
+      type: 'pie',
+      radius: ['42%', '68%'],
+      center: ['40%', '50%'],
+      avoidLabelOverlap: true,
+      color: PALETTE,
+      itemStyle: {
+        borderRadius: 3,
+        borderColor: '#090909',
+        borderWidth: 2,
       },
-    },
-    tooltip: {
-      trigger: 'item',
-      formatter: '{b}: {c} ({d}%)',
-    },
-    legend: {
-      orient: 'vertical',
-      right: '5%',
-      top: 'center',
-    },
-    series: [
-      {
-        name: 'Kategori',
-        type: 'pie',
-        radius: ['40%', '70%'],
-        center: ['45%', '50%'],
-        avoidLabelOverlap: false,
+      label: { show: false },
+      emphasis: {
         itemStyle: {
-          borderRadius: 10,
-          borderColor: '#fff',
-          borderWidth: 2,
+          shadowBlur: 12,
+          shadowColor: 'rgba(240,90,20,0.35)',
         },
         label: {
-          show: false,
-          position: 'center',
+          show: true,
+          fontSize: 14,
+          fontWeight: 'bold',
+          color: '#f1f5f9',
+          formatter: '{b}',
         },
-        emphasis: {
-          label: {
-            show: true,
-            fontSize: 16,
-            fontWeight: 'bold',
-          },
-        },
-        labelLine: {
-          show: false,
-        },
-        data: props.data.length
-          ? props.data
-          : [
-              {
-                value: 0,
-                name: 'Tidak ada data',
-              },
-            ],
       },
-    ],
-  }
+      labelLine: { show: false },
+      cursor: props.clickable ? 'pointer' : 'default',
+      data: data.length
+        ? data
+        : [{ value: 0, name: 'Tidak ada data', itemStyle: { color: '#232323' } }],
+    },
+  ],
+})
 
-  chartInstance.setOption(option)
+const initChart = () => {
+  if (!chartContainer.value) return
+  chartInstance = echarts.init(chartContainer.value)
+  chartInstance.setOption(buildOption(props.data))
+
+  if (props.clickable) {
+    chartInstance.on('click', (params) => {
+      if (params.data?.name && params.data.name !== 'Tidak ada data') {
+        emit('sliceClick', params.data.name)
+      }
+    })
+  }
 }
 
-// Debounced resize handler to avoid excessive redraws
 let resizeTimer = null
 const handleResize = () => {
   clearTimeout(resizeTimer)
-  resizeTimer = setTimeout(() => {
-    if (chartInstance) {
-      chartInstance.resize()
-    }
-  }, 200)
+  resizeTimer = setTimeout(() => chartInstance?.resize(), 200)
 }
 
-// Watch for data changes
 watch(
   () => props.data,
-  () => {
-    if (chartInstance) {
-      const newOption = {
-        series: [
-          {
-            data: props.data.length
-              ? props.data
-              : [
-                  {
-                    value: 0,
-                    name: 'Tidak ada data',
-                  },
-                ],
-          },
-        ],
-      }
-      chartInstance.setOption(newOption)
-    }
+  (newData) => {
+    chartInstance?.setOption({ series: [{ data: newData.length ? newData : [{ value: 0, name: 'Tidak ada data', itemStyle: { color: '#2a2a3a' } }] }] })
   },
   { deep: true }
 )
 
-// Lifecycle hooks
 onMounted(() => {
   initChart()
-
-  // Add window resize listener for responsiveness
   window.addEventListener('resize', handleResize)
 })
 
 onUnmounted(() => {
-  // Clean up: remove resize listener and dispose chart
   window.removeEventListener('resize', handleResize)
-  if (chartInstance) {
-    chartInstance.dispose()
-    chartInstance = null
-  }
+  chartInstance?.dispose()
+  chartInstance = null
 })
 </script>
 
 <style scoped>
 .pie-chart-container {
   width: 100%;
-  height: 400px;
-  min-height: 400px;
+  height: 360px;
+  min-height: 300px;
+}
+
+.clickable-chart {
+  cursor: pointer;
 }
 </style>

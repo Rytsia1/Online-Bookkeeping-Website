@@ -1,199 +1,230 @@
 <template>
-  <div class="dashboard-container">
-    <!-- Header -->
-    <header class="dashboard-header">
-      <div class="header-left">
-        <h1 class="welcome-title">
-          Welcome, <span class="username">{{ userName }}</span>
-        </h1>
-        <p class="welcome-subtitle">{{ currentDate }}</p>
+  <div class="page">
+
+    <!-- Budget Alert -->
+    <transition name="alert-slide">
+      <div
+        v-if="(monthlySummary.budgetExceeded || monthlySummary.budgetWarning) && !alertDismissed"
+        :class="['alert-bar', monthlySummary.budgetExceeded ? 'alert-bar--exceeded' : 'alert-bar--warning']"
+      >
+        <div class="alert-bar__icon">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+            <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+          </svg>
+        </div>
+        <div class="alert-bar__body">
+          <strong>{{ monthlySummary.budgetExceeded ? 'BUDGET EXCEEDED' : 'BUDGET WARNING' }}</strong>
+          <span>Pengeluaran {{ formatCurrencyIDR(monthlySummary.expense) }} — {{ (monthlySummary.budgetUsedPercent || 0).toFixed(1) }}% dari {{ formatCurrencyIDR(monthlySummary.monthlyBudget) }}</span>
+        </div>
+        <button class="alert-bar__close" @click="dismissAlert">✕</button>
       </div>
-      <div class="header-actions">
-        <el-button type="primary" class="btn-primary-custom" @click="navigateToBills">
-          View Bills
-        </el-button>
-        <el-button class="btn-outline-custom" @click="navigateToAnalytics">
+    </transition>
+
+    <!-- Page Header -->
+    <div class="page-header">
+      <div class="page-header__left">
+        <p class="page-eyebrow">BOOKKEEPING / DASHBOARD</p>
+        <h1 class="page-title">Welcome, <span class="accent">{{ userName }}</span></h1>
+        <p class="page-date">{{ currentDate }}</p>
+      </div>
+      <div class="page-header__actions">
+        <button class="btn-ghost" @click="navigateToAnalytics">
           Analytics
-        </el-button>
-        <el-dropdown @command="handleCommand" trigger="click">
-          <el-button class="btn-icon-custom" circle>
-            <i class="el-icon-user"></i>
-          </el-button>
-          <template #dropdown>
-            <el-dropdown-menu>
-              <el-dropdown-item command="profile">Profile</el-dropdown-item>
-              <el-dropdown-item command="settings">Settings</el-dropdown-item>
-              <el-dropdown-item divided command="logout">Logout</el-dropdown-item>
-            </el-dropdown-menu>
-          </template>
-        </el-dropdown>
+        </button>
+        <button class="btn-primary" @click="navigateToBills">
+          + ADD BILL
+        </button>
       </div>
-    </header>
+    </div>
 
-    <!-- Quick Stats -->
-    <section class="stats-grid">
-      <div class="stat-item">
-        <div class="stat-icon stat-icon-total">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-          </svg>
-        </div>
-        <div class="stat-info">
-          <span class="stat-label">Total Transactions</span>
-          <span class="stat-number">{{ totalTransactions }}</span>
-        </div>
+    <!-- Stats Row -->
+    <div class="stats-row">
+      <div class="stat-card">
+        <p class="stat-card__label">TOTAL TRANSACTIONS</p>
+        <p class="stat-card__value">{{ totalTransactions }}</p>
+        <p class="stat-card__sub">all time</p>
       </div>
-
-      <div class="stat-item">
-        <div class="stat-icon stat-icon-month">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <rect x="3" y="4" width="18" height="18" rx="2" ry="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" />
-          </svg>
-        </div>
-        <div class="stat-info">
-          <span class="stat-label">This Month</span>
-          <span class="stat-number">{{ currentMonthCount }}</span>
-        </div>
+      <div class="stat-card">
+        <p class="stat-card__label">THIS MONTH</p>
+        <p class="stat-card__value">{{ currentMonthCount }}</p>
+        <p class="stat-card__sub">transactions</p>
       </div>
-
-      <div class="stat-item">
-        <div class="stat-icon stat-icon-status">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
-          </svg>
-        </div>
-        <div class="stat-info">
-          <span class="stat-label">Status</span>
-          <span class="stat-number" :class="statusClass">{{ statusText }}</span>
-        </div>
+      <div class="stat-card">
+        <p class="stat-card__label">STATUS</p>
+        <p class="stat-card__value" :class="monthlySummary.balance >= 0 ? 'value--green' : 'value--red'">
+          {{ statusText.toUpperCase() }}
+        </p>
+        <p class="stat-card__sub">monthly</p>
       </div>
-
-      <div class="stat-item">
-        <div class="stat-icon stat-icon-update">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" />
-          </svg>
-        </div>
-        <div class="stat-info">
-          <span class="stat-label">Last Updated</span>
-          <span class="stat-number">{{ lastUpdate }}</span>
-        </div>
+      <div class="stat-card">
+        <p class="stat-card__label">NET BALANCE</p>
+        <p class="stat-card__value mono" :class="monthlySummary.balance >= 0 ? 'value--green' : 'value--red'">
+          {{ formatCurrencyIDR(monthlySummary.balance) }}
+        </p>
+        <p class="stat-card__sub">{{ lastUpdate }}</p>
       </div>
-    </section>
+    </div>
 
-    <!-- Main Content -->
-    <div class="dashboard-content">
+    <!-- Main Grid -->
+    <div class="main-grid">
       <!-- Recent Bills -->
-      <section class="content-card recent-bills-card">
-        <div class="card-header">
-          <h3 class="card-title">Recent Bills</h3>
-          <el-button link class="view-all-link" @click="navigateToBills">View All →</el-button>
+      <section class="panel">
+        <div class="panel__header">
+          <span class="panel__label">RECENT TRANSACTIONS</span>
+          <button class="btn-link" @click="navigateToBills">VIEW ALL →</button>
         </div>
 
-        <div class="table-wrapper">
-          <el-table
-            :data="recentBills"
-            stripe
-            style="width: 100%"
-            :header-cell-style="tableHeaderStyle"
-            :cell-style="tableCellStyle"
-            :default-sort="{ prop: 'date', order: 'descending' }"
-          >
-            <el-table-column prop="date" label="Date" width="110" sortable />
-            <el-table-column prop="type" label="Type" width="120">
-              <template #default="{ row }">
-                <span :class="['type-badge', row.type === 'income' ? 'badge-income' : 'badge-expense']">
-                  {{ row.type === 'income' ? 'Income' : 'Expense' }}
-                </span>
-              </template>
-            </el-table-column>
-            <el-table-column prop="category" label="Category" width="120" />
-            <el-table-column prop="amount" label="Amount" width="140">
-              <template #default="{ row }">
-                <span :class="row.type === 'income' ? 'income-text' : 'expense-text'">
-                  {{ row.type === 'income' ? '+' : '-' }}{{ formatCurrency(row.amount) }}
-                </span>
-              </template>
-            </el-table-column>
-            <el-table-column prop="description" label="Description" min-width="180" show-overflow-tooltip />
-          </el-table>
-        </div>
+        <el-table
+          :data="recentBills"
+          style="width: 100%"
+          :header-cell-style="tableHeaderStyle"
+          :cell-style="tableCellStyle"
+        >
+          <el-table-column prop="billDate" label="DATE" width="100" />
+          <el-table-column label="TYPE" width="110">
+            <template #default="{ row }">
+              <span :class="['badge', row.type === 1 ? 'badge--income' : 'badge--expense']">
+                {{ row.type === 1 ? 'INCOME' : 'EXPENSE' }}
+              </span>
+            </template>
+          </el-table-column>
+          <el-table-column prop="category" label="CATEGORY" width="130" />
+          <el-table-column label="AMOUNT" width="160">
+            <template #default="{ row }">
+              <span :class="['mono', 'fw-600', row.type === 1 ? 'text-green' : 'text-red']">
+                {{ row.type === 1 ? '+' : '-' }}{{ formatCurrencyIDR(row.amount) }}
+              </span>
+            </template>
+          </el-table-column>
+          <el-table-column prop="description" label="DESCRIPTION" min-width="160" show-overflow-tooltip />
+        </el-table>
 
-        <el-empty v-if="recentBills.length === 0" description="No bills yet" class="empty-state" />
+        <el-empty v-if="recentBills.length === 0" description="No transactions yet" class="empty" />
       </section>
 
-      <!-- Right Sidebar -->
-      <aside class="sidebar-section">
+      <!-- Sidebar -->
+      <aside class="sidebar">
         <!-- Monthly Summary -->
-        <section class="content-card summary-card">
-          <div class="card-header">
-            <h3 class="card-title">Monthly Summary</h3>
+        <section class="panel">
+          <div class="panel__header">
+            <span class="panel__label">MONTHLY SUMMARY</span>
           </div>
 
-          <div class="summary-list">
-            <div class="summary-row income-row">
-              <div class="summary-dot dot-income"></div>
-              <div class="summary-detail">
-                <span class="summary-label">Total Income</span>
-                <span class="summary-value income-text">{{ formatCurrency(monthlySummary.income) }}</span>
-              </div>
+          <div class="kv-list">
+            <div class="kv-row">
+              <span class="kv-key">INCOME</span>
+              <span class="kv-val mono text-green">+{{ formatCurrencyIDR(monthlySummary.income) }}</span>
+            </div>
+            <div class="kv-row">
+              <span class="kv-key">EXPENSE</span>
+              <span class="kv-val mono text-red">-{{ formatCurrencyIDR(monthlySummary.expense) }}</span>
+            </div>
+            <div class="kv-divider"></div>
+            <div class="kv-row">
+              <span class="kv-key">BALANCE</span>
+              <span class="kv-val mono fw-700" :class="monthlySummary.balance >= 0 ? 'text-green' : 'text-red'">
+                {{ formatCurrencyIDR(monthlySummary.balance) }}
+              </span>
             </div>
 
-            <div class="summary-row expense-row">
-              <div class="summary-dot dot-expense"></div>
-              <div class="summary-detail">
-                <span class="summary-label">Total Expenses</span>
-                <span class="summary-value expense-text">{{ formatCurrency(monthlySummary.expense) }}</span>
+            <!-- Budget -->
+            <template v-if="monthlySummary.monthlyBudget">
+              <div class="kv-divider"></div>
+              <div class="budget-block">
+                <div class="budget-block__header">
+                  <span class="kv-key">BUDGET</span>
+                  <span class="kv-val mono">{{ formatCurrencyIDR(monthlySummary.monthlyBudget) }}</span>
+                </div>
+                <div class="budget-track">
+                  <div
+                    class="budget-fill"
+                    :class="{
+                      'budget-fill--exceeded': monthlySummary.budgetExceeded,
+                      'budget-fill--warning':  monthlySummary.budgetWarning && !monthlySummary.budgetExceeded,
+                    }"
+                    :style="{ width: Math.min(monthlySummary.budgetUsedPercent || 0, 100) + '%' }"
+                  ></div>
+                </div>
+                <div class="budget-meta">
+                  <span :class="{
+                    'text-red':   monthlySummary.budgetExceeded,
+                    'text-amber': monthlySummary.budgetWarning && !monthlySummary.budgetExceeded,
+                    'text-green': !monthlySummary.budgetWarning,
+                  }">{{ (monthlySummary.budgetUsedPercent || 0).toFixed(1) }}% used</span>
+                  <span class="text-ash mono">
+                    <template v-if="!monthlySummary.budgetExceeded">
+                      sisa {{ formatCurrencyIDR(monthlySummary.monthlyBudget - monthlySummary.expense) }}
+                    </template>
+                    <template v-else>
+                      lebih {{ formatCurrencyIDR(monthlySummary.expense - monthlySummary.monthlyBudget) }}
+                    </template>
+                  </span>
+                </div>
               </div>
-            </div>
-
-            <div class="summary-divider"></div>
-
-            <div class="summary-row balance-row">
-              <div class="summary-dot dot-balance"></div>
-              <div class="summary-detail">
-                <span class="summary-label">Net Balance</span>
-                <span class="summary-value" :class="monthlySummary.balance >= 0 ? 'income-text' : 'expense-text'">
-                  {{ formatCurrency(monthlySummary.balance) }}
-                </span>
-              </div>
-            </div>
+            </template>
           </div>
 
-          <el-button type="primary" class="btn-primary-custom full-width" @click="navigateToAnalytics">
-            View Full Analytics
-          </el-button>
+          <button class="btn-outline full-width mt-12" @click="openBudgetDialog">
+            {{ monthlySummary.monthlyBudget ? 'EDIT BUDGET →' : 'SET BUDGET →' }}
+          </button>
         </section>
 
         <!-- Quick Actions -->
-        <section class="content-card actions-card">
-          <div class="card-header">
-            <h3 class="card-title">Quick Actions</h3>
+        <section class="panel">
+          <div class="panel__header">
+            <span class="panel__label">QUICK ACTIONS</span>
           </div>
-
-          <div class="action-buttons">
-            <button class="action-btn" @click="navigateToBills">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
+          <div class="action-list">
+            <button class="action-item" @click="navigateToBills">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
               </svg>
-              Add Bill
+              Add New Bill
             </button>
-            <button class="action-btn">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" />
+            <button class="action-item" @click="navigateToAnalytics">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>
               </svg>
-              Export Data
+              View Analytics
             </button>
-            <button class="action-btn">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="12" cy="12" r="3" /><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z" />
+            <button class="action-item" @click="openBudgetDialog">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>
               </svg>
-              Settings
+              {{ monthlySummary.monthlyBudget ? 'Edit Budget' : 'Set Budget' }}
             </button>
           </div>
         </section>
       </aside>
     </div>
+
+    <!-- Budget Dialog -->
+    <el-dialog v-model="budgetDialogVisible" title="Set Monthly Budget" width="400px" class="forge-dialog">
+      <div class="dialog-body">
+        <p class="dialog-desc">Tetapkan batas maksimal pengeluaran bulanan. Alert akan muncul saat mendekati atau melampaui batas.</p>
+        <el-form label-position="top">
+          <el-form-item label="TARGET ANGGARAN (IDR)">
+            <el-input-number
+              v-model="budgetInput"
+              :min="0"
+              :step="100000"
+              :precision="0"
+              style="width: 100%"
+              size="large"
+            />
+          </el-form-item>
+          <p v-if="budgetInput > 0" class="budget-preview">
+            {{ formatCurrencyIDR(budgetInput) }}
+          </p>
+        </el-form>
+      </div>
+      <template #footer>
+        <el-button @click="budgetDialogVisible = false">CANCEL</el-button>
+        <el-button type="primary" :loading="budgetSaving" @click="saveBudget">SAVE BUDGET</el-button>
+      </template>
+    </el-dialog>
+
   </div>
 </template>
 
@@ -205,57 +236,46 @@ import request from '@/utils/request'
 
 const router = useRouter()
 
-// State
 const bills = ref([])
 const monthlySummary = ref({
-  income: 0,
-  expense: 0,
-  balance: 0,
+  income: 0, expense: 0, balance: 0,
+  monthlyBudget: null, budgetUsedPercent: 0,
+  budgetWarning: false, budgetExceeded: false,
 })
-const loading = ref(false)
+const loading             = ref(false)
+const alertDismissed      = ref(false)
+const budgetDialogVisible = ref(false)
+const budgetInput         = ref(0)
+const budgetSaving        = ref(false)
 
-// Table styles
 const tableHeaderStyle = {
-  background: '#1e1e2e',
-  color: '#94a3b8',
-  borderBottom: '1px solid #2a2a3a',
-  fontWeight: '600',
+  background: 'var(--ink)', color: 'var(--ash)',
+  borderBottom: '1px solid var(--wire)',
+  fontSize: '11px', fontWeight: '600', letterSpacing: '1px',
+}
+const tableCellStyle = {
+  background: 'var(--graphite)', color: 'var(--bone)',
+  borderBottom: '1px solid var(--wire)',
   fontSize: '13px',
 }
 
-const tableCellStyle = {
-  background: '#1a1a24',
-  color: '#e2e8f0',
-  borderBottom: '1px solid #2a2a3a',
-}
-
-// Computed
-const userName = computed(() => {
-  return localStorage.getItem('username') || 'User'
-})
+const userName = computed(() => localStorage.getItem('username') || 'user')
 
 const currentDate = computed(() => {
   const today = new Date()
-  const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }
-  return today.toLocaleDateString('en-US', options)
+  return today.toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
 })
 
-const recentBills = computed(() => {
-  return bills.value.slice(0, 5)
-})
-
-const totalTransactions = computed(() => {
-  return bills.value.length
-})
+const recentBills = computed(() => bills.value.slice(0, 6))
+const totalTransactions = computed(() => bills.value.length)
 
 const currentMonthCount = computed(() => {
   const today = new Date()
-  const currentMonth = today.getMonth()
-  const currentYear = today.getFullYear()
-
-  return bills.value.filter((bill) => {
-    const billDate = new Date(bill.date)
-    return billDate.getMonth() === currentMonth && billDate.getFullYear() === currentYear
+  const m = today.getMonth() + 1, y = today.getFullYear()
+  return bills.value.filter(b => {
+    if (!b.billDate) return false
+    const [yr, mo] = b.billDate.split('-').map(Number)
+    return mo === m && yr === y
   }).length
 })
 
@@ -265,34 +285,58 @@ const statusText = computed(() => {
   return 'Balanced'
 })
 
-const statusClass = computed(() => {
-  if (monthlySummary.value.balance > 0) return 'income-text'
-  if (monthlySummary.value.balance < 0) return 'expense-text'
-  return ''
-})
+const lastUpdate = computed(() => new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }))
 
-const lastUpdate = computed(() => {
-  const now = new Date()
-  return now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
-})
+const formatCurrencyIDR = (amount) => {
+  if (amount == null) return 'Rp 0'
+  return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(amount)
+}
 
-// Methods
-const formatCurrency = (amount) => {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    minimumFractionDigits: 0,
-  }).format(amount)
+const dismissAlert         = () => { alertDismissed.value = true }
+const navigateToBills      = () => router.push('/bills')
+const navigateToAnalytics  = () => router.push('/analytics')
+
+const openBudgetDialog = () => {
+  budgetInput.value = monthlySummary.value.monthlyBudget || 0
+  budgetDialogVisible.value = true
+}
+
+const saveBudget = async () => {
+  try {
+    budgetSaving.value = true
+    const userId = localStorage.getItem('userId')
+    await request.put('/budget', { userId: Number(userId), monthlyBudget: budgetInput.value })
+    ElMessage.success('Anggaran berhasil disimpan')
+    budgetDialogVisible.value = false
+    alertDismissed.value = false
+    await fetchMonthlySummary()
+  } catch (e) {
+    ElMessage.error('Gagal menyimpan anggaran')
+  } finally {
+    budgetSaving.value = false
+  }
+}
+
+const handleCommand = (cmd) => {
+  if (cmd === 'logout') {
+    localStorage.removeItem('token')
+    localStorage.removeItem('username')
+    localStorage.removeItem('userId')
+    router.push('/login')
+    ElMessage.success('Logged out')
+  } else if (cmd === 'settings') {
+    openBudgetDialog()
+  }
 }
 
 const fetchBills = async () => {
   try {
     loading.value = true
-    const data = await request.get('/bills')
-    bills.value = Array.isArray(data) ? data.sort((a, b) => new Date(b.date) - new Date(a.date)) : []
-  } catch (error) {
-    ElMessage.error('Failed to load bills data')
-    console.error(error)
+    const userId = localStorage.getItem('userId')
+    const data = await request.get('/bills', { params: { userId } })
+    bills.value = Array.isArray(data) ? data.sort((a, b) => new Date(b.billDate) - new Date(a.billDate)) : []
+  } catch (e) {
+    ElMessage.error('Failed to load bills')
   } finally {
     loading.value = false
   }
@@ -300,490 +344,400 @@ const fetchBills = async () => {
 
 const fetchMonthlySummary = async () => {
   try {
-    const data = await request.get('/stats/summary')
+    const today = new Date()
+    const userId = localStorage.getItem('userId')
+    const data = await request.get('/stats/summary', {
+      params: { userId, month: today.getMonth() + 1, year: today.getFullYear() }
+    })
     monthlySummary.value = {
-      income: data.income || 0,
-      expense: data.expense || 0,
-      balance: data.balance || 0,
+      income:  data.totalIncome  || 0,
+      expense: data.totalExpense || 0,
+      balance: data.balance      || 0,
+      monthlyBudget:     data.monthlyBudget     || null,
+      budgetUsedPercent: data.budgetUsedPercent || 0,
+      budgetWarning:     data.budgetWarning     || false,
+      budgetExceeded:    data.budgetExceeded    || false,
     }
-  } catch (error) {
-    console.error(error)
-  }
+  } catch (e) { console.error(e) }
 }
 
-const navigateToBills = () => {
-  router.push('/bills')
-}
-
-const navigateToAnalytics = () => {
-  router.push('/analytics')
-}
-
-const handleCommand = (command) => {
-  switch (command) {
-    case 'logout':
-      localStorage.removeItem('token')
-      localStorage.removeItem('username')
-      router.push('/login')
-      ElMessage.success('Logged out successfully')
-      break
-    case 'profile':
-      ElMessage.info('Profile feature coming soon')
-      break
-    case 'settings':
-      ElMessage.info('Settings feature coming soon')
-      break
-  }
-}
-
-// Lifecycle
-onMounted(() => {
-  fetchBills()
-  fetchMonthlySummary()
-})
+onMounted(() => { fetchBills(); fetchMonthlySummary() })
 </script>
 
 <style scoped>
-.dashboard-container {
-  padding: 32px;
+/* ── Page Layout ── */
+.page {
+  padding: 28px 32px;
   max-width: 1440px;
   margin: 0 auto;
   min-height: 100vh;
 }
 
-/* Header */
-.dashboard-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 32px;
-  padding: 28px 32px;
-  background: #1a1a24;
-  border: 1px solid #2a2a3a;
-  border-radius: 16px;
-}
-
-.welcome-title {
-  font-size: 24px;
-  font-weight: 700;
-  color: #f1f5f9;
-  margin: 0;
-}
-
-.username {
-  background: linear-gradient(135deg, #6366f1, #8b5cf6);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-.welcome-subtitle {
-  font-size: 14px;
-  color: #64748b;
-  margin: 4px 0 0 0;
-}
-
-.header-actions {
+/* ── Alert Bar ── */
+.alert-bar {
   display: flex;
   align-items: center;
   gap: 12px;
-}
-
-.btn-primary-custom {
-  background: linear-gradient(135deg, #6366f1, #8b5cf6);
-  border: none;
-  border-radius: 10px;
-  font-weight: 600;
-  padding: 10px 20px;
-  transition: all 0.2s ease;
-}
-
-.btn-primary-custom:hover {
-  background: linear-gradient(135deg, #4f46e5, #7c3aed);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 16px rgba(99, 102, 241, 0.3);
-}
-
-.btn-outline-custom {
-  background: transparent;
-  border: 1px solid #2a2a3a;
-  color: #e2e8f0;
-  border-radius: 10px;
-  font-weight: 500;
-  padding: 10px 20px;
-  transition: all 0.2s ease;
-}
-
-.btn-outline-custom:hover {
-  border-color: #6366f1;
-  color: #6366f1;
-  background: rgba(99, 102, 241, 0.05);
-}
-
-.btn-icon-custom {
-  background: #1e1e2e;
-  border: 1px solid #2a2a3a;
-  color: #94a3b8;
-  width: 40px;
-  height: 40px;
-}
-
-.btn-icon-custom:hover {
-  border-color: #6366f1;
-  color: #6366f1;
-}
-
-/* Stats Grid */
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 16px;
-  margin-bottom: 32px;
-}
-
-.stat-item {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  padding: 20px;
-  background: #1a1a24;
-  border: 1px solid #2a2a3a;
-  border-radius: 12px;
-  transition: all 0.2s ease;
-}
-
-.stat-item:hover {
-  border-color: #3a3a4a;
-  transform: translateY(-2px);
-}
-
-.stat-icon {
-  width: 44px;
-  height: 44px;
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.stat-icon-total {
-  background: rgba(99, 102, 241, 0.15);
-  color: #6366f1;
-}
-
-.stat-icon-month {
-  background: rgba(16, 185, 129, 0.15);
-  color: #10b981;
-}
-
-.stat-icon-status {
-  background: rgba(245, 158, 11, 0.15);
-  color: #f59e0b;
-}
-
-.stat-icon-update {
-  background: rgba(139, 92, 246, 0.15);
-  color: #8b5cf6;
-}
-
-.stat-info {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.stat-label {
-  font-size: 12px;
-  color: #64748b;
-  font-weight: 500;
-}
-
-.stat-number {
-  font-size: 20px;
-  font-weight: 700;
-  color: #f1f5f9;
-}
-
-/* Main Content */
-.dashboard-content {
-  display: grid;
-  grid-template-columns: 1fr 380px;
-  gap: 24px;
-}
-
-.content-card {
-  background: #1a1a24;
-  border: 1px solid #2a2a3a;
-  border-radius: 14px;
-  padding: 24px;
-}
-
-.card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+  padding: 10px 16px;
   margin-bottom: 20px;
+  border-left: 3px solid;
+  border-radius: 2px;
 }
 
-.card-title {
-  font-size: 16px;
-  font-weight: 600;
-  color: #f1f5f9;
-  margin: 0;
+.alert-bar--exceeded {
+  background: rgba(239,68,68,0.07);
+  border-left-color: var(--red);
+  color: var(--red);
 }
 
-.view-all-link {
-  color: #6366f1 !important;
-  font-weight: 500;
-  font-size: 13px;
+.alert-bar--warning {
+  background: rgba(245,158,11,0.07);
+  border-left-color: var(--amber);
+  color: var(--amber);
 }
 
-/* Table */
-.table-wrapper {
-  border-radius: 10px;
-  overflow: hidden;
-  border: 1px solid #2a2a3a;
-}
-
-.table-wrapper :deep(.el-table) {
-  background: #1a1a24;
-  --el-table-border-color: #2a2a3a;
-}
-
-.table-wrapper :deep(.el-table tr) {
-  background: #1a1a24;
-}
-
-.table-wrapper :deep(.el-table--striped .el-table__body tr.el-table__row--striped td.el-table__cell) {
-  background: #16161f;
-}
-
-.table-wrapper :deep(.el-table td.el-table__cell),
-.table-wrapper :deep(.el-table th.el-table__cell.is-leaf) {
-  border-bottom: 1px solid #2a2a3a;
-}
-
-.table-wrapper :deep(.el-table--enable-row-hover .el-table__body tr:hover > td.el-table__cell) {
-  background: rgba(99, 102, 241, 0.05);
-}
-
-.type-badge {
-  display: inline-block;
-  padding: 3px 10px;
-  border-radius: 20px;
-  font-size: 12px;
-  font-weight: 600;
-}
-
-.badge-income {
-  background: rgba(16, 185, 129, 0.15);
-  color: #10b981;
-}
-
-.badge-expense {
-  background: rgba(239, 68, 68, 0.15);
-  color: #ef4444;
-}
-
-.income-text {
-  color: #10b981;
-  font-weight: 600;
-}
-
-.expense-text {
-  color: #ef4444;
-  font-weight: 600;
-}
-
-.empty-state {
-  padding: 40px 0;
-}
-
-.empty-state :deep(.el-empty__description p) {
-  color: #64748b;
-}
-
-/* Sidebar */
-.sidebar-section {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-/* Summary Card */
-.summary-list {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  margin-bottom: 20px;
-}
-
-.summary-row {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 14px;
-  border-radius: 10px;
-  background: #12121a;
-}
-
-.summary-dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  flex-shrink: 0;
-}
-
-.dot-income {
-  background: #10b981;
-}
-
-.dot-expense {
-  background: #ef4444;
-}
-
-.dot-balance {
-  background: #6366f1;
-}
-
-.summary-detail {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+.alert-bar__body {
   flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  font-size: 12px;
 }
 
-.summary-label {
-  font-size: 13px;
-  color: #94a3b8;
-}
-
-.summary-value {
-  font-size: 15px;
+.alert-bar__body strong {
+  font-size: 11px;
+  letter-spacing: 1px;
   font-weight: 700;
-  font-family: 'JetBrains Mono', 'Courier New', monospace;
 }
 
-.summary-divider {
-  height: 1px;
-  background: #2a2a3a;
-  margin: 4px 0;
+.alert-bar__close {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: inherit;
+  font-size: 14px;
+  opacity: 0.5;
+  padding: 2px 4px;
+  transition: opacity 0.15s;
+}
+.alert-bar__close:hover { opacity: 1; }
+
+.alert-slide-enter-active, .alert-slide-leave-active { transition: all 0.25s ease; }
+.alert-slide-enter-from, .alert-slide-leave-to { opacity: 0; transform: translateY(-8px); }
+
+/* ── Page Header ── */
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 24px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--wire);
 }
 
-.full-width {
-  width: 100%;
+.page-eyebrow {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: var(--ash);
+  margin-bottom: 6px;
+}
+
+.page-title {
+  font-family: var(--font-display);
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--white);
+  line-height: 1.1;
+}
+
+.accent { color: var(--ember); }
+
+.page-date {
+  font-size: 12px;
+  color: var(--ash);
   margin-top: 4px;
 }
 
-/* Quick Actions */
-.action-buttons {
+.page-header__actions {
   display: flex;
-  flex-direction: column;
   gap: 10px;
+  align-items: center;
 }
 
-.action-btn {
+/* ── Buttons ── */
+.btn-primary {
+  padding: 8px 16px;
+  background: var(--ember);
+  border: none;
+  border-radius: 3px;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  font-family: var(--font-body);
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.btn-primary:hover { background: var(--spark); }
+
+.btn-ghost {
+  padding: 8px 16px;
+  background: transparent;
+  border: 1px solid var(--wire);
+  border-radius: 3px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 600;
+  font-family: var(--font-body);
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.btn-ghost:hover { border-color: var(--muted); color: var(--bone); }
+
+.btn-outline {
+  padding: 8px 16px;
+  background: transparent;
+  border: 1px solid var(--wire);
+  border-radius: 3px;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 700;
+  font-family: var(--font-body);
+  letter-spacing: 0.8px;
+  cursor: pointer;
+  transition: all 0.15s;
+  text-align: center;
+}
+.btn-outline:hover { border-color: var(--ember); color: var(--ember); background: rgba(240,90,20,0.05); }
+
+.btn-link {
+  background: none;
+  border: none;
+  color: var(--ash);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  cursor: pointer;
+  transition: color 0.15s;
+}
+.btn-link:hover { color: var(--ember); }
+
+/* ── Stats Row ── */
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  background: var(--wire);
+  border: 1px solid var(--wire);
+  border-radius: 3px;
+  margin-bottom: 24px;
+  overflow: hidden;
+}
+
+.stat-card {
+  padding: 20px 24px;
+  background: var(--graphite);
+}
+
+.stat-card__label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  color: var(--ash);
+  margin-bottom: 10px;
+}
+
+.stat-card__value {
+  font-family: var(--font-mono);
+  font-size: 26px;
+  font-weight: 600;
+  color: var(--white);
+  line-height: 1;
+  margin-bottom: 6px;
+}
+
+.stat-card__sub {
+  font-size: 11px;
+  color: var(--ash);
+}
+
+/* ── Main Grid ── */
+.main-grid {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 16px;
+}
+
+/* ── Panel ── */
+.panel {
+  background: var(--graphite);
+  border: 1px solid var(--wire);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.panel__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--wire);
+}
+
+.panel__label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  color: var(--ash);
+}
+
+/* Table overrides */
+.panel :deep(.el-table) { border-radius: 0 !important; }
+.panel :deep(.el-table__header-wrapper) { border-bottom: 1px solid var(--wire) !important; }
+
+/* ── Empty ── */
+.empty { padding: 40px 0; }
+.empty :deep(.el-empty__description p) { color: var(--ash); font-size: 12px; }
+
+/* ── Sidebar ── */
+.sidebar { display: flex; flex-direction: column; gap: 16px; }
+
+/* ── KV List ── */
+.kv-list { padding: 16px 20px; display: flex; flex-direction: column; gap: 10px; }
+
+.kv-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.kv-key {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  color: var(--ash);
+}
+
+.kv-val {
+  font-size: 13px;
+  color: var(--bone);
+  font-weight: 500;
+}
+
+.kv-divider { height: 1px; background: var(--wire); margin: 4px 0; }
+
+/* Budget block */
+.budget-block { display: flex; flex-direction: column; gap: 8px; }
+.budget-block__header { display: flex; justify-content: space-between; align-items: center; }
+
+.budget-track {
+  height: 3px;
+  background: var(--wire);
+  border-radius: 99px;
+  overflow: hidden;
+}
+
+.budget-fill {
+  height: 100%;
+  background: var(--green);
+  border-radius: 99px;
+  transition: width 0.5s ease;
+}
+.budget-fill--warning  { background: var(--amber); }
+.budget-fill--exceeded { background: var(--red); }
+
+.budget-meta { display: flex; justify-content: space-between; font-size: 11px; }
+
+/* ── Action List ── */
+.action-list { padding: 12px 16px; display: flex; flex-direction: column; gap: 4px; }
+
+.action-item {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 12px 16px;
-  background: #12121a;
-  border: 1px solid #2a2a3a;
-  border-radius: 10px;
-  color: #e2e8f0;
-  font-size: 14px;
+  padding: 10px 12px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 2px;
+  color: var(--muted);
+  font-size: 13px;
   font-weight: 500;
+  font-family: var(--font-body);
   cursor: pointer;
-  transition: all 0.2s ease;
-  width: 100%;
+  transition: all 0.15s;
   text-align: left;
+  width: 100%;
+}
+.action-item:hover {
+  border-color: var(--wire);
+  color: var(--bone);
+  background: var(--slate);
 }
 
-.action-btn:hover {
-  border-color: #6366f1;
-  color: #6366f1;
-  background: rgba(99, 102, 241, 0.05);
+/* ── Dialog ── */
+.dialog-body { display: flex; flex-direction: column; gap: 16px; }
+
+.dialog-desc {
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.6;
 }
 
-.action-btn svg {
-  opacity: 0.7;
+.budget-preview {
+  font-family: var(--font-mono);
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--ember);
+  margin-top: 4px;
 }
 
-.action-btn:hover svg {
-  opacity: 1;
-}
+/* ── Utilities ── */
+.mono   { font-family: var(--font-mono) !important; }
+.fw-600 { font-weight: 600 !important; }
+.fw-700 { font-weight: 700 !important; }
+.text-green { color: var(--green) !important; }
+.text-red   { color: var(--red) !important; }
+.text-amber { color: var(--amber) !important; }
+.text-ash   { color: var(--ash) !important; }
+.value--green { color: var(--green) !important; }
+.value--red   { color: var(--red) !important; }
+.full-width { width: 100%; }
+.mt-12 { margin-top: 12px; }
 
-/* Responsive */
+/* Badge */
+.badge {
+  display: inline-block;
+  padding: 2px 8px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  border-radius: 2px;
+}
+.badge--income  { background: rgba(34,197,94,0.1);  color: var(--green); }
+.badge--expense { background: rgba(239,68,68,0.1);  color: var(--red); }
+
+/* ── Responsive ── */
 @media (max-width: 1200px) {
-  .dashboard-content {
-    grid-template-columns: 1fr;
-  }
-
-  .sidebar-section {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 20px;
-  }
+  .main-grid { grid-template-columns: 1fr; }
+  .sidebar { display: grid; grid-template-columns: 1fr 1fr; }
 }
 
 @media (max-width: 1024px) {
-  .stats-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
+  .stats-row { grid-template-columns: repeat(2, 1fr); }
 }
 
 @media (max-width: 768px) {
-  .dashboard-container {
-    padding: 16px;
-  }
-
-  .dashboard-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 16px;
-    padding: 20px;
-  }
-
-  .header-actions {
-    width: 100%;
-    justify-content: flex-start;
-    flex-wrap: wrap;
-  }
-
-  .stats-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
-  }
-
-  .stat-item {
-    padding: 16px;
-  }
-
-  .stat-number {
-    font-size: 18px;
-  }
-
-  .sidebar-section {
-    grid-template-columns: 1fr;
-  }
-
-  .welcome-title {
-    font-size: 20px;
-  }
+  .page { padding: 16px; }
+  .page-header { flex-direction: column; align-items: flex-start; gap: 16px; }
+  .stats-row { grid-template-columns: repeat(2, 1fr); }
+  .sidebar { grid-template-columns: 1fr; }
+  .page-title { font-size: 22px; }
 }
 
 @media (max-width: 480px) {
-  .stats-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .dashboard-container {
-    padding: 12px;
-  }
-
-  .content-card {
-    padding: 16px;
-  }
+  .stats-row { grid-template-columns: 1fr; }
+  .page { padding: 12px; }
 }
 </style>

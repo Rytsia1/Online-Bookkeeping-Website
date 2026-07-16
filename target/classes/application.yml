@@ -6,11 +6,13 @@ spring:
     username: root
     password: Shizukusan1412
     driver-class-name: com.mysql.cj.jdbc.Driver
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false  # LocalDate → "2026-07-16", bukan array [2026,7,16]
 
 server:
   port: 8080
 
-# Tambahkan baris ini di bawah:
 mybatis:
   configuration:
     map-underscore-to-camel-case: true

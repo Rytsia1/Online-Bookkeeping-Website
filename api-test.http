@@ -25,3 +25,25 @@ DELETE http://localhost:8080/api/bill/delete?id=1
 
 ### Lihat Statistik Bulan Juli 2026
 GET http://localhost:8080/api/bill/stats/monthly?userId=1&month=7&year=2026
+
+### ── FITUR BUDGET ──
+
+### Lihat ringkasan bulanan (dengan info budget)
+GET http://localhost:8080/api/stats/summary?userId=1&month=7&year=2026
+
+### Simpan / Update target anggaran bulanan
+PUT http://localhost:8080/api/budget
+Content-Type: application/json
+
+{
+  "userId": 1,
+  "monthlyBudget": 3000000
+}
+
+### Ambil anggaran tersimpan milik user
+GET http://localhost:8080/api/budget/1
+
+### ── DETAIL CHART INTERAKTIF ──
+
+### Ambil daftar transaksi per kategori (untuk klik pie chart)
+GET http://localhost:8080/api/stats/transactions?userId=1&category=Makanan&month=7&year=2026
