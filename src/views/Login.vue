@@ -11,7 +11,7 @@
       </div>
       <div class="auth-hero">
         <h1>Financial<br/>clarity<br/><span class="accent">starts here.</span></h1>
-        <p>Track every rupiah. Set monthly budgets. Understand where your money goes — all in one place.</p>
+        <p>Track every dollar. Set monthly budgets. Understand where your money goes — all in one place.</p>
       </div>
       <div class="auth-stats">
         <div class="auth-stat">

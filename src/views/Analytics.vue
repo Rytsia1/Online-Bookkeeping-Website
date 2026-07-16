@@ -294,9 +294,9 @@ const drawerSize = computed(() => window.innerWidth <= 600 ? '100%' : '460px')
 
 // ── Helpers ──
 const formatCurrency = (amount) => {
-  if (amount == null) return 'Rp 0'
-  return new Intl.NumberFormat('id-ID', {
-    style: 'currency', currency: 'IDR',
+  if (amount == null) return '$ 0'
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency', currency: 'USD',
     minimumFractionDigits: 0, maximumFractionDigits: 0,
   }).format(amount)
 }

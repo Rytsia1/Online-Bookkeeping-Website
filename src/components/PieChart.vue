@@ -41,7 +41,7 @@ const buildOption = (data) => ({
     borderColor: '#232323',
     textStyle: { color: '#DEDEDE', fontSize: 13 },
     formatter: (p) => {
-      const val = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(p.value)
+      const val = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0 }).format(p.value)
       return `<b>${p.name}</b><br/>${val} <span style="color:#94a3b8">(${p.percent.toFixed(1)}%)</span>`
     },
   },

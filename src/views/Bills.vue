@@ -90,11 +90,11 @@
           <el-input v-model="formData.category" placeholder="e.g. Makanan, Transport, Gaji" size="large" />
         </el-form-item>
 
-        <el-form-item label="AMOUNT (IDR)" prop="amount">
+        <el-form-item label="AMOUNT (USD)" prop="amount">
           <el-input-number
             v-model="formData.amount"
             :min="0"
-            :step="10000"
+            :step="10"
             :precision="0"
             style="width: 100%"
             size="large"
@@ -189,9 +189,9 @@ const getFilterCount = (v) => {
 }
 
 const formatCurrency = (amount) => {
-  if (amount == null) return 'Rp 0'
-  return new Intl.NumberFormat('id-ID', {
-    style: 'currency', currency: 'IDR',
+  if (amount == null) return '$ 0'
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency', currency: 'USD',
     minimumFractionDigits: 0, maximumFractionDigits: 0,
   }).format(amount)
 }

@@ -204,11 +204,11 @@
       <div class="dialog-body">
         <p class="dialog-desc">Tetapkan batas maksimal pengeluaran bulanan. Alert akan muncul saat mendekati atau melampaui batas.</p>
         <el-form label-position="top">
-          <el-form-item label="TARGET ANGGARAN (IDR)">
+          <el-form-item label="TARGET BUDGET (USD)">
             <el-input-number
               v-model="budgetInput"
               :min="0"
-              :step="100000"
+              :step="10"
               :precision="0"
               style="width: 100%"
               size="large"
@@ -288,8 +288,8 @@ const statusText = computed(() => {
 const lastUpdate = computed(() => new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }))
 
 const formatCurrencyIDR = (amount) => {
-  if (amount == null) return 'Rp 0'
-  return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(amount)
+  if (amount == null) return '$ 0'
+  return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(amount)
 }
 
 const dismissAlert         = () => { alertDismissed.value = true }
