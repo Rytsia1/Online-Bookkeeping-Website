@@ -53,7 +53,7 @@
           v-model="formData.description"
           type="textarea"
           placeholder="Enter description (optional)"
-          rows="3"
+          :rows="3"
         />
       </el-form-item>
     </el-form>
@@ -133,6 +133,17 @@ const formRules = {
   ]
 }
 
+const resetForm = () => {
+  formData.value = {
+    type: 'expense',
+    category: '',
+    amount: '',
+    date: new Date().toISOString().split('T')[0],
+    description: ''
+  }
+  formRef.value?.clearValidate()
+}
+
 // Watch to reset form when mode changes
 watch(
   () => props.editData,
@@ -142,7 +153,8 @@ watch(
     } else {
       resetForm()
     }
-  }
+  },
+  { immediate: true }
 )
 
 const handleSubmit = async () => {
@@ -185,17 +197,6 @@ const handleSubmit = async () => {
 const handleDialogClose = () => {
   dialogVisible.value = false
   resetForm()
-}
-
-const resetForm = () => {
-  formData.value = {
-    type: 'expense',
-    category: '',
-    amount: '',
-    date: new Date().toISOString().split('T')[0],
-    description: ''
-  }
-  formRef.value?.clearValidate()
 }
 </script>
 
