@@ -87,13 +87,20 @@
         </el-form-item>
 
         <el-form-item label="CATEGORY" prop="category">
-          <el-input v-model="formData.category" placeholder="e.g. Food, Transport, Salary" size="large" />
+          <el-select v-model="formData.category" placeholder="Select category" size="large" style="width: 100%">
+            <el-option
+              v-for="category in availableCategories"
+              :key="category"
+              :label="category"
+              :value="category"
+            />
+          </el-select>
         </el-form-item>
 
         <el-form-item label="AMOUNT (USD)" prop="amount">
           <el-input-number
             v-model="formData.amount"
-            :min="0"
+            :min="1"
             :step="10"
             :precision="0"
             style="width: 100%"
@@ -134,7 +141,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import request from '@/utils/request'
 
@@ -151,18 +158,43 @@ const filters = [
   { label: 'EXPENSE', value: 'expense' },
 ]
 
-const formData = ref({
-  type: 0, category: '', amount: 0,
+const fixedCategories = {
+  1: ['Salary', 'Bonus', 'Freelance', 'Investment', 'Other Income'],
+  0: ['Food', 'Transport', 'Utilities', 'Shopping', 'Entertainment', 'Other Expense'],
+}
+
+const getDefaultCategory = (type) => fixedCategories[type]?.[0] ?? ''
+
+const createEmptyForm = () => ({
+  type: 0,
+  category: getDefaultCategory(0),
+  amount: 1,
   billDate: new Date().toISOString().split('T')[0],
   description: '',
 })
 
+const formData = ref(createEmptyForm())
+
 const rules = {
   type:     [{ required: true, message: 'Required', trigger: 'change' }],
-  category: [{ required: true, message: 'Required', trigger: 'blur' }],
-  amount:   [{ required: true, message: 'Required', trigger: 'blur' }],
+  category: [{ required: true, message: 'Required', trigger: 'change' }],
+  amount:   [
+    { required: true, message: 'Required', trigger: 'blur' },
+    { type: 'number', min: 1, message: 'Amount must be greater than 0', trigger: 'blur' },
+  ],
   billDate: [{ required: true, message: 'Required', trigger: 'change' }],
 }
+
+const availableCategories = computed(() => fixedCategories[formData.value.type] ?? [])
+
+watch(
+  () => formData.value.type,
+  (type) => {
+    if (!availableCategories.value.includes(formData.value.category)) {
+      formData.value.category = getDefaultCategory(type)
+    }
+  }
+)
 
 const tableHeaderStyle = {
   background: 'var(--ink)', color: 'var(--ash)',
@@ -217,7 +249,11 @@ const handleCreate = () => {
 
 const handleEdit = (row) => {
   dialogMode.value = 'edit'
-  formData.value = { ...row }
+  const nextForm = { ...row }
+  if (!fixedCategories[nextForm.type]?.includes(nextForm.category)) {
+    nextForm.category = getDefaultCategory(nextForm.type)
+  }
+  formData.value = nextForm
   dialogVisible.value = true
 }
 
@@ -254,10 +290,7 @@ const handleSubmit = async () => {
 }
 
 const resetForm = () => {
-  formData.value = {
-    type: 0, category: '', amount: 0,
-    billDate: new Date().toISOString().split('T')[0], description: '',
-  }
+  formData.value = createEmptyForm()
   formRef.value?.clearValidate()
 }
 
