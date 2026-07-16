@@ -15,7 +15,7 @@
         </div>
         <div class="alert-bar__body">
           <strong>{{ monthlySummary.budgetExceeded ? 'BUDGET EXCEEDED' : 'BUDGET WARNING' }}</strong>
-          <span>Pengeluaran {{ formatCurrencyIDR(monthlySummary.expense) }} — {{ (monthlySummary.budgetUsedPercent || 0).toFixed(1) }}% dari {{ formatCurrencyIDR(monthlySummary.monthlyBudget) }}</span>
+          <span>Pengeluaran {{ formatCurrencyUSD(monthlySummary.expense) }} — {{ (monthlySummary.budgetUsedPercent || 0).toFixed(1) }}% dari {{ formatCurrencyUSD(monthlySummary.monthlyBudget) }}</span>
         </div>
         <button class="alert-bar__close" @click="dismissAlert">✕</button>
       </div>
@@ -60,7 +60,7 @@
       <div class="stat-card">
         <p class="stat-card__label">NET BALANCE</p>
         <p class="stat-card__value mono" :class="monthlySummary.balance >= 0 ? 'value--green' : 'value--red'">
-          {{ formatCurrencyIDR(monthlySummary.balance) }}
+          {{ formatCurrencyUSD(monthlySummary.balance) }}
         </p>
         <p class="stat-card__sub">{{ lastUpdate }}</p>
       </div>
@@ -93,7 +93,7 @@
           <el-table-column label="AMOUNT" width="160">
             <template #default="{ row }">
               <span :class="['mono', 'fw-600', row.type === 1 ? 'text-green' : 'text-red']">
-                {{ row.type === 1 ? '+' : '-' }}{{ formatCurrencyIDR(row.amount) }}
+                {{ row.type === 1 ? '+' : '-' }}{{ formatCurrencyUSD(row.amount) }}
               </span>
             </template>
           </el-table-column>
@@ -114,17 +114,17 @@
           <div class="kv-list">
             <div class="kv-row">
               <span class="kv-key">INCOME</span>
-              <span class="kv-val mono text-green">+{{ formatCurrencyIDR(monthlySummary.income) }}</span>
+              <span class="kv-val mono text-green">+{{ formatCurrencyUSD(monthlySummary.income) }}</span>
             </div>
             <div class="kv-row">
               <span class="kv-key">EXPENSE</span>
-              <span class="kv-val mono text-red">-{{ formatCurrencyIDR(monthlySummary.expense) }}</span>
+              <span class="kv-val mono text-red">-{{ formatCurrencyUSD(monthlySummary.expense) }}</span>
             </div>
             <div class="kv-divider"></div>
             <div class="kv-row">
               <span class="kv-key">BALANCE</span>
               <span class="kv-val mono fw-700" :class="monthlySummary.balance >= 0 ? 'text-green' : 'text-red'">
-                {{ formatCurrencyIDR(monthlySummary.balance) }}
+                {{ formatCurrencyUSD(monthlySummary.balance) }}
               </span>
             </div>
 
@@ -134,7 +134,7 @@
               <div class="budget-block">
                 <div class="budget-block__header">
                   <span class="kv-key">BUDGET</span>
-                  <span class="kv-val mono">{{ formatCurrencyIDR(monthlySummary.monthlyBudget) }}</span>
+                  <span class="kv-val mono">{{ formatCurrencyUSD(monthlySummary.monthlyBudget) }}</span>
                 </div>
                 <div class="budget-track">
                   <div
@@ -154,10 +154,10 @@
                   }">{{ (monthlySummary.budgetUsedPercent || 0).toFixed(1) }}% used</span>
                   <span class="text-ash mono">
                     <template v-if="!monthlySummary.budgetExceeded">
-                      sisa {{ formatCurrencyIDR(monthlySummary.monthlyBudget - monthlySummary.expense) }}
+                      sisa {{ formatCurrencyUSD(monthlySummary.monthlyBudget - monthlySummary.expense) }}
                     </template>
                     <template v-else>
-                      lebih {{ formatCurrencyIDR(monthlySummary.expense - monthlySummary.monthlyBudget) }}
+                      lebih {{ formatCurrencyUSD(monthlySummary.expense - monthlySummary.monthlyBudget) }}
                     </template>
                   </span>
                 </div>
@@ -215,7 +215,7 @@
             />
           </el-form-item>
           <p v-if="budgetInput > 0" class="budget-preview">
-            {{ formatCurrencyIDR(budgetInput) }}
+            {{ formatCurrencyUSD(budgetInput) }}
           </p>
         </el-form>
       </div>
@@ -287,7 +287,7 @@ const statusText = computed(() => {
 
 const lastUpdate = computed(() => new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }))
 
-const formatCurrencyIDR = (amount) => {
+const formatCurrencyUSD = (amount) => {
   if (amount == null) return '$ 0'
   return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(amount)
 }
