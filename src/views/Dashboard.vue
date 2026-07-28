@@ -194,10 +194,17 @@
               </svg>
               {{ monthlySummary.monthlyBudget ? 'Edit Budget' : 'Set Budget' }}
             </button>
+            <button class="action-item" @click="navigateToSavings">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 2a8 8 0 1 0 0 16A8 8 0 0 0 12 2z"/><path d="M12 6v6l4 2"/>
+              </svg>
+              View Savings Goals
+            </button>
           </div>
         </section>
       </aside>
     </div>
+
 
     <!-- Budget Dialog -->
     <el-dialog v-model="budgetDialogVisible" title="Set Monthly Budget" width="400px" class="forge-dialog">
@@ -295,6 +302,7 @@ const formatCurrencyUSD = (amount) => {
 const dismissAlert         = () => { alertDismissed.value = true }
 const navigateToBills      = () => router.push('/bills')
 const navigateToAnalytics  = () => router.push('/analytics')
+const navigateToSavings    = () => router.push('/savings')
 
 const openBudgetDialog = () => {
   budgetInput.value = monthlySummary.value.monthlyBudget || 0

@@ -7,6 +7,7 @@ import Register from '@/views/Register.vue'
 import Dashboard from '@/views/Dashboard.vue'
 import Analytics from '@/views/Analytics.vue'
 import Bills from '@/views/Bills.vue'
+import SavingsGoals from '@/views/SavingsGoals.vue'
 
 /**
  * Route Configuration
@@ -64,6 +65,15 @@ const routes = [
     meta: {
       requiresAuth: true,
       title: 'Analytics - Personal Bookkeeping',
+    },
+  },
+  {
+    path: '/savings',
+    name: 'Savings',
+    component: SavingsGoals,
+    meta: {
+      requiresAuth: true,
+      title: 'Savings Goals - Personal Bookkeeping',
     },
   },
   {

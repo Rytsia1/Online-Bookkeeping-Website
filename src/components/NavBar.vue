@@ -22,7 +22,11 @@
       <router-link to="/analytics" class="nav-item" active-class="nav-item--active">
         Analytics
       </router-link>
+      <router-link to="/savings" class="nav-item" active-class="nav-item--active">
+        Savings
+      </router-link>
     </div>
+
 
     <!-- Right -->
     <div class="nav-right">
