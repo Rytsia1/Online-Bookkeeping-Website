@@ -2,9 +2,14 @@
 import { useRoute } from 'vue-router'
 import { computed } from 'vue'
 import NavBar from '@/components/NavBar.vue'
+import { useThemeStore } from '@/stores/theme'
 
 const route = useRoute()
 const showNavBar = computed(() => route.path !== '/login' && route.path !== '/register')
+
+// Initialise the store here so the data-theme attribute is applied
+// before the first render (the store constructor calls applyTheme immediately).
+useThemeStore()
 </script>
 
 <template>
@@ -13,8 +18,10 @@ const showNavBar = computed(() => route.path !== '/login' && route.path !== '/re
 </template>
 
 <style>
-/* ── Design Tokens ── */
-:root {
+/* ════════════════════════════════════════════════
+   DARK THEME  (default)
+   ════════════════════════════════════════════════ */
+:root[data-theme="dark"] {
   --ink:      #090909;
   --graphite: #111111;
   --slate:    #181818;
@@ -23,19 +30,68 @@ const showNavBar = computed(() => route.path !== '/login' && route.path !== '/re
   --muted:    #8A8A8A;
   --bone:     #DEDEDE;
   --white:    #FFFFFF;
+
+  /* Accent colours stay the same in both themes */
   --ember:    #F05A14;
   --spark:    #FF7A3D;
   --green:    #22C55E;
   --red:      #EF4444;
   --amber:    #F59E0B;
+
+  /* Typography */
   --font-display: 'Space Grotesk', 'Inter', sans-serif;
   --font-body:    'Inter', sans-serif;
   --font-mono:    'JetBrains Mono', 'Courier New', monospace;
+
+  /* Shadows */
+  --shadow-sm: 0 2px 8px rgba(0,0,0,0.4);
+  --shadow-md: 0 8px 24px rgba(0,0,0,0.5);
+}
+
+/* ════════════════════════════════════════════════
+   LIGHT THEME
+   ════════════════════════════════════════════════ */
+:root[data-theme="light"] {
+  /* Dark/light naming inverted so all consumers stay the same */
+  --ink:      #F0F0F0;   /* page background */
+  --graphite: #FFFFFF;   /* card / panel background */
+  --slate:    #F5F5F5;   /* hover row, secondary bg */
+  --wire:     #E0E0E0;   /* borders / dividers */
+  --ash:      #9E9E9E;   /* secondary labels */
+  --muted:    #616161;   /* body text, tertiary */
+  --bone:     #212121;   /* primary body text */
+  --white:    #0D0D0D;   /* highest-contrast text (headings) */
+
+  /* Accent colours — unchanged */
+  --ember:    #E04A04;   /* slightly darker for light bg contrast */
+  --spark:    #F06A2D;
+  --green:    #16A34A;
+  --red:      #DC2626;
+  --amber:    #D97706;
+
+  /* Typography */
+  --font-display: 'Space Grotesk', 'Inter', sans-serif;
+  --font-body:    'Inter', sans-serif;
+  --font-mono:    'JetBrains Mono', 'Courier New', monospace;
+
+  /* Shadows */
+  --shadow-sm: 0 2px 8px rgba(0,0,0,0.08);
+  --shadow-md: 0 8px 24px rgba(0,0,0,0.12);
+}
+
+/* ════════════════════════════════════════════════
+   GLOBAL TRANSITION  — smooth theme swap
+   ════════════════════════════════════════════════ */
+*, *::before, *::after {
+  transition:
+    background-color 0.25s ease,
+    border-color     0.25s ease,
+    color            0.20s ease,
+    box-shadow       0.25s ease;
 }
 
 /* ── Reset & Base ── */
 * { margin: 0; padding: 0; box-sizing: border-box; }
-
 html { font-size: 14px; }
 
 body {
@@ -48,14 +104,17 @@ body {
 
 #app { min-height: 100vh; background-color: var(--ink); }
 
-/* ── Element Plus Dark Overrides ── */
+/* ════════════════════════════════════════════════
+   ELEMENT PLUS OVERRIDES — dark theme
+   ════════════════════════════════════════════════ */
+
+/* Card */
 .el-card {
   background-color: var(--graphite) !important;
   border: 1px solid var(--wire) !important;
   border-radius: 3px !important;
   color: var(--bone) !important;
 }
-
 .el-card__header {
   border-bottom: 1px solid var(--wire) !important;
   color: var(--bone) !important;
@@ -67,13 +126,10 @@ body {
   color: var(--bone) !important;
   border-radius: 3px !important;
 }
-
 .el-table tr { background-color: var(--graphite) !important; }
-
 .el-table--striped .el-table__body tr.el-table__row--striped td.el-table__cell {
   background-color: var(--slate) !important;
 }
-
 .el-table th.el-table__cell {
   background-color: var(--ink) !important;
   color: var(--ash) !important;
@@ -83,13 +139,10 @@ body {
   letter-spacing: 1px !important;
   text-transform: uppercase !important;
 }
-
 .el-table td.el-table__cell { border-bottom: 1px solid var(--wire) !important; }
-
 .el-table--enable-row-hover .el-table__body tr:hover > td.el-table__cell {
   background-color: var(--slate) !important;
 }
-
 .el-table__empty-block { background-color: var(--graphite) !important; }
 .el-table__empty-text  { color: var(--ash) !important; }
 
@@ -100,7 +153,6 @@ body {
   border-radius: 4px !important;
   box-shadow: 0 24px 48px rgba(0,0,0,0.6) !important;
 }
-
 .el-dialog__header { border-bottom: 1px solid var(--wire) !important; padding: 18px 24px !important; }
 .el-dialog__title  { color: var(--white) !important; font-family: var(--font-display) !important; font-weight: 600 !important; }
 .el-dialog__body   { padding: 24px !important; }
@@ -127,6 +179,7 @@ body {
   font-family: var(--font-body) !important;
 }
 
+/* Input */
 .el-input__wrapper {
   background-color: var(--ink) !important;
   border: 1px solid var(--wire) !important;
@@ -135,7 +188,6 @@ body {
 }
 .el-input__wrapper:hover { border-color: var(--muted) !important; box-shadow: none !important; }
 .el-input__wrapper.is-focus { border-color: var(--ember) !important; box-shadow: none !important; }
-
 .el-input__inner {
   color: var(--bone) !important;
   font-family: var(--font-body) !important;
@@ -143,6 +195,7 @@ body {
 }
 .el-input__inner::placeholder { color: var(--ash) !important; }
 
+/* Textarea */
 .el-textarea__inner {
   background-color: var(--ink) !important;
   border: 1px solid var(--wire) !important;
@@ -157,7 +210,6 @@ body {
 
 /* Select */
 .el-select .el-input__wrapper { background-color: var(--ink) !important; }
-
 .el-select-dropdown {
   background-color: var(--graphite) !important;
   border: 1px solid var(--wire) !important;
@@ -184,7 +236,7 @@ body {
   color: white !important;
 }
 
-/* Buttons — primary = ember */
+/* Buttons */
 .el-button--primary {
   background-color: var(--ember) !important;
   border-color: var(--ember) !important;
@@ -211,7 +263,7 @@ body {
   background-color: var(--slate) !important;
 }
 
-/* Message box */
+/* Message Box */
 .el-message-box {
   background-color: var(--graphite) !important;
   border: 1px solid var(--wire) !important;
@@ -220,7 +272,7 @@ body {
 .el-message-box__title   { color: var(--white) !important; font-family: var(--font-display) !important; }
 .el-message-box__content { color: var(--muted) !important; }
 
-/* Dropdown menu */
+/* Dropdown */
 .el-dropdown-menu {
   background-color: var(--graphite) !important;
   border: 1px solid var(--wire) !important;
@@ -234,7 +286,7 @@ body {
 /* Empty */
 .el-empty__description p { color: var(--ash) !important; }
 
-/* Notifications */
+/* Notification */
 .el-message { border-radius: 3px !important; border-color: var(--wire) !important; background-color: var(--graphite) !important; }
 
 /* Scrollbar */

@@ -36,6 +36,7 @@
         </svg>
         {{ username }}
       </span>
+      <ThemeToggle />
       <button class="logout-btn" @click="handleLogout">
         Logout
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
@@ -51,6 +52,7 @@
 import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
+import ThemeToggle from '@/components/ThemeToggle.vue'
 
 const router   = useRouter()
 const username = computed(() => localStorage.getItem('username') || 'user')
